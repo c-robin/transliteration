@@ -1,3 +1,8 @@
 __pycache__/*
 */pyc
 rules2.txt
+translit_SPA-POR.train_set
+translit_SPA-POR.test_set
+translit_ENG-RUS.train_set
+translit_ENG-RUS.test_set
+
