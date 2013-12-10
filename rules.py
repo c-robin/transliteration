@@ -3,58 +3,46 @@ from utils import *
 from collections import defaultdict
 
 SPA_TRAIN = 'translit_SPA-POR.train_set'
-CONFIDENCE = 0.8
-SUPPORT = 4
 
-# Returns the number of times a given rule pattern occurs in the given data set.
 def support(pattern, data):
+    """
+    Returns the number of times a given rule pattern occurs in the given data
+    set.
+    """
     return len([s for (s, p) in data if pattern in s])
 
-# Finds the rule associated with this pattern, which has the best confidence.
-# For example, for the pattern 'itis', returns rule 'ite'.
 def best_confidence(pattern, alignments):
-    
+    """
+    Finds the rule associated with this pattern, which has the best confidence.
+    For example, for the pattern 'itis', returns rule 'ite'.
+    """
+    bad = 0
     rules = defaultdict(int)
     for al in alignments:
-        for m in matches(al, pattern):
-            rules[m] += 1
+        for pat, mat in matches(al, pattern):
+            if pat != pattern:
+                bad += 1
+            else:
+                rules[mat] += 1
 
     best_score = 0
     best_rule = 0
-    total = 0
+    total = bad
     for rule, score in rules.items():
         total += score
         if score > best_score and rule != pattern:
             best_score = score
             best_rule = rule
     best_score /= total
-  
-    # Temporary hack (a bit overkill, we probably miss many rules).
-    # Some bad rules such as 'iti->ite' have a good confidence.
-    # Because the match function, given [('it', 'it'), ('is', 'e'), ('#', '#')]
-    # and the pattern 'iti', returns 'ite'. Thus, the confidence of 'iti->ite'
-    # and 'itis->ite' is almost the same.
-    # To avoid this problem, We compute the confidence of the rule in both
-    # directions (Spanish->Portuguese, Portuguese->Spanish).
-    if best_score >= CONFIDENCE:
-        inv_score = 0
-        inv_alignments = ([(p,s) for (s,p) in l] for l in alignments)
-        inv_total = 0
-        for al in inv_alignments:
-            for m in matches(al, best_rule):
-                if m == pattern:
-                    inv_score += 1
-                inv_total += 1
-        inv_score /= inv_total
-        #print('>%s->%s (%f,%f)' % (pattern, best_rule, best_score, inv_score))
-        best_score = 0.5*best_score + 0.5*inv_score
-
+    
     return (best_rule, best_score)
 
-# Generates a set of candidate rule patterns for a given alignment.
-# For example [('#lacta', '#lacta'), ('ncia', 'ção'), ('#', '#')] gives
-# ['ncia', 'ancia', 'ncia#', 'ancia#', ...]
 def candidate_gen(alignment):
+    """
+    Generates a set of candidate rule patterns for a given alignment.
+    For example [('#lacta', '#lacta'), ('ncia', 'ção'), ('#', '#')] gives
+    ['ncia', 'ancia', 'ncia#', 'ancia#', ...]
+    """
     word = ''.join([s for (s, p) in alignment])
     indices = []
     i = 0
@@ -69,23 +57,27 @@ def candidate_gen(alignment):
             for l in range(j, min(len(word) + 1, j + 3)):
                 candidates.append(word[k:l])
 
-    return [c for c in candidates if len(c) > 1]
+    return candidates
 
-# Given an alignment and a pattern, returns the possible matches (on the other
-# side of the rule).
-# For example: [('#dod', '#dod'), ('o', 'ó'), ('#', '#')] and the pattern 'do'
-# would give ['do', 'dó']
 def matches(alignment, pattern):
+    """
+    Given an alignment and a pattern, returns the possible matches (on the other
+    side of the rule).
+    For example: [('#dod', '#dod'), ('o', 'ó'), ('#', '#')] and the pattern 'do'
+    would give ['do', 'dó']
+    """
     word = ''.join([s for (s, p) in alignment])
     return [match(index, alignment, pattern) for index in indices(word,
         pattern)]
     
-# Given an alignment and a pattern, returns the other part of the rule at a
-# given index.
-# For example: [('#dod', '#dod'), ('o', 'ó'), ('#', '#')] with the pattern 'do'
-# and the index 3, would give 'dó'
 def match(index, alignment, pattern):
-    match = ''
+    """
+    Given an alignment and a pattern, returns the other part of the rule at a
+    given index.
+    For example: [('#dod', '#dod'), ('o', 'ó'), ('#', '#')] with the pattern
+    'do' and the index 3, would give 'dó'
+    """
+    match, pat = '', ''
     i = 0
     for (s, p) in alignment:
         if index >= i + len(s):
@@ -94,18 +86,40 @@ def match(index, alignment, pattern):
             break
         elif s == p:
             match += p[max(0, index - i):(index - i + len(pattern))]
-        #elif index + len(pattern) >= i + len(s):
+            pat += s[max(0, index - i):(index - i + len(pattern))]
         else:
-            match += p #TODO improve
+            match += p
+            pat += s
 
         i += len(s)
 
-    return match
+    return (pat, match)
 
-# Given a set of alignments, return the list of substitution rules with
-# confidence above the CONFIDENCE threshold, and support above the SUPPORT
-# threshold.
-def find_rules(alignments):
+
+def inv_confidence(rule, alignments):
+    """    
+    Returns the confidence of the given rule in the opposite direction (from
+    Portuguese to Spanish). Might be useful to compute a 'stricter' confidence
+    measure.
+    """
+    pattern, match = rule
+    inv_score = 0
+    inv_alignments = ([(p,s) for (s,p) in l] for l in alignments)
+    inv_total = 0
+    for al in inv_alignments:
+        for (pat, mat) in matches(al, match):
+            if mat == pattern:
+                inv_score += 1
+            inv_total += 1
+    inv_score /= inv_total
+    return inv_score
+
+def find_rules(alignments, min_confidence, min_support, min_length):
+    """
+    Given a set of alignments, returns the list of substitution rules with
+    confidence above the min_confidence threshold, and support above the
+    min_support threshold.
+    """
     rules = dict()
     dided = set()
 
@@ -113,36 +127,47 @@ def find_rules(alignments):
         candidates = candidate_gen(alignment)
         for pattern in candidates:
             # No need to check a pattern that has already been checked.
-            if pattern in dided:# or pattern[-1] != '#':
+            if len(pattern) < min_length or pattern in dided:
                 continue
             dided.add(pattern)
 
             s = support(pattern, training_data)
             # Check the support first, avoids a good deal of computation.
-            if s >= SUPPORT:
-                rule, c = best_confidence(pattern, alignments)
-                if c >= CONFIDENCE:
-                    rules[pattern] = (rule, s, c)
-                    print('%s->%s (%d,%f)' % (pattern, rule, s, c))
+            if s < min_support:
+                continue
 
-    # Eliminate too general rules
-    #new_rules = dict()
-    #for s, p in rules.items():
-    #    if not [k for k in rules.keys() if s != k and s in k]:
-    #        new_rules[s] = p
+            rule, c = best_confidence(pattern, alignments)
+                
+            if c < min_confidence:
+                continue
+            #c = 0.5 * c + 0.5 * inv_confidence((pattern, rule), alignments)
+            #if c < min_confidence:
+            #    continue
 
+            rules[pattern] = (rule, s, c)
+            #print('%s->%s (%d, %f)' % (pattern, rule, s, c))
+    
     return rules
 
 if __name__ == '__main__':
-    filename = sys.argv[1]
+    if len(sys.argv) != 5:
+        sys.exit('Usage: %s confidence support length output' % sys.argv[0])
+
+    min_confidence = float(sys.argv[1])
+    min_support = int(sys.argv[2])
+    min_length = int(sys.argv[3])
+    output = sys.argv[4]
 
     training_data = data(SPA_TRAIN)
     als = alignments(training_data)
 
-    f = open(filename, 'w')
-    rules = find_rules(als)
+    f = open(output, 'w')
+    rules = find_rules(als, min_confidence, min_support, min_length)
+    f.write('%%conf=%.2f, sup=%d, len=%d\n' % (min_confidence, min_support,
+        min_length))
 
-    rules = sorted(rules.items(), key=lambda x: -x[1][2])
+    # Apply more specific rules before more general ones (order by length)
+    rules = sorted(rules.items(), key=lambda x: len(x[0]), reverse=True)
     for s, (p, sup, c) in rules:
         f.write('%s->%s\n' % (s, p))
     f.close()

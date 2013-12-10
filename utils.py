@@ -10,13 +10,15 @@ def data(filename, several_values=False):
     else:
         return [(l[0], l[1]) for l in words]
 
-# Converts a data set containing pairs of words into a list of alignments
-# between these words. An alignement looks like this:
-# [('#pseud', '#pseud'), ('o', 'ó'), ('pod', 'pod'), ('i', ''), ('o#', 'o#')]]
-# The alignement is computed using the levenshtein distance (we assume that the
-# words are close: few letters differ). For Russian and English, we will need to
-# use another method.
 def alignments(data):
+    """
+    Converts a data set containing pairs of words into a list of alignments
+    between these words. An alignement looks like this: [('#pseud', '#pseud'),
+    ('o', 'ó'), ('pod', 'pod'), ('i', ''), ('o#', 'o#')]]
+    The alignement is computed using the levenshtein distance (we assume that
+    the words are close: few letters differ). For Russian and English, we will
+    need to use another method.
+    """
     alignments = []
     for s, p in data:
         ops = opcodes(s, p)
@@ -38,9 +40,11 @@ def alignments(data):
         alignments.append(align)
     return alignments
 
-# Like the function str.index, but returns a list of indices (when the patterns
-# appears several times in the string).
 def indices(string, pattern):
+    """
+    Like the function str.index, but returns a list of indices (when the patterns
+    appears several times in the string).
+    """
     offset = 0
     indices = []
 

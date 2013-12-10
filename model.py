@@ -16,8 +16,13 @@ class Model:
 
 class RulesModel(Model):
     def __init__(self, rule_file):
-        rule_lines = open(rule_file).readlines()
-        self.rules = [line[:-1].split('->') for line in rule_lines] 
+        lines = open(rule_file).readlines()
+        
+        if lines[0].startswith('%'):
+            print(lines[0][1:-1])
+
+        self.rules = [line[:-1].split('->') for line in lines if
+                not line.startswith('%') and '->' in line] 
     def translate(self, word):
         for s, p in self.rules:
             word = word.replace(s, p)
@@ -31,17 +36,32 @@ if __name__ == '__main__':
         model = Model()
     else:
         model = RulesModel(sys.argv[1])
-    
-    total = len(test_data)
-    dist = 0
-    ok = 0
 
-    for word,translations in test_data:
-        tr = model.translate(word)
-        d = min([distance(tr, translation) for translation in translations])
-        dist += d
-        if d == 0:
-            ok += 1
+    total = len(test_data)
+    dist_sum = 0
+    ok_count = 0
+
+    for word, translations in test_data:
+        model_translation = model.translate(word)
+        dist = min([distance(model_translation, translation) for translation in
+            translations])
+
+        if dist == 0:
+            ok_count += 1
+        
+        dist_sum += dist
     
-    print('accuracy: %f, average distance: %d' % (ok / total, dist))
+    print('accuracy: %.1f%%, average distance: %.3f' % (100 * ok_count / total,
+        dist_sum / total))
+
+"""
+conf=0.80, sup=2, len=4
+accuracy: 68.1%, average distance: 0.595
+
+Baseline rules.txt:
+accuracy: 58.6%, average distance: 0.755
+
+No rules:
+accuracy: 51.0%, average distance: 1.062
+"""
 
