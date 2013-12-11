@@ -23,9 +23,26 @@ class RulesModel(Model):
 
         self.rules = [line[:-1].split('->') for line in lines if
                 not line.startswith('%') and '->' in line] 
+
     def translate(self, word):
-        for s, p in self.rules:
-            word = word.replace(s, p)
+        indices = []
+        for left, right in self.rules:
+            if left not in word:
+                continue
+            
+            start = word.index(left)
+            end = start + len(left) - 1
+            rule_ok = True
+            
+            for i, j in indices:
+                if (start >= i or end >= i) and (start <= i or end <= j):
+                    rule_ok = False
+                    break
+
+            if rule_ok:
+                indices.append((start, end))
+                word = word.replace(left, right)
+        
         return word
 
 training_data = data(SPA_TRAIN)
@@ -44,7 +61,7 @@ if __name__ == '__main__':
     for word, translations in test_data:
         model_translation = model.translate(word)
         dist = min([distance(model_translation, translation) for translation in
-            translations])
+        translations])
 
         if dist == 0:
             ok_count += 1
