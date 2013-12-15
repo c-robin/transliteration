@@ -3,7 +3,7 @@ from utils import *
 from collections import defaultdict
 import random
 
-SPA_TRAIN = 'translit_SPA-POR.train_set'
+SPA_TRAIN = '../translit_SPA-POR.train_set'
 
 def support(pattern, data):
     """

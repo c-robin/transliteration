@@ -1,3 +1,2 @@
 __pycache__/*
-*/pyc
-rules2.txt
+*.pyc

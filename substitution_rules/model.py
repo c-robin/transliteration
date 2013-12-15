@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 from utils import *
 
-SPA_TRAIN = 'translit_SPA-POR.train_set'
-SPA_TEST = 'translit_SPA-POR.test_set'
-RUS_TRAIN = 'translit_ENG-RUS.train_set'
-RUS_TEST = 'translit_ENG-RUS.test_set'
+SPA_TRAIN = '../translit_SPA-POR.train_set'
+SPA_TEST = '../translit_SPA-POR.test_set'
+RUS_TRAIN = '../translit_ENG-RUS.train_set'
+RUS_TEST = '../translit_ENG-RUS.test_set'
 
 class Model:
     def __init__(self):
