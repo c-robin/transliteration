@@ -3,8 +3,6 @@ from utils import *
 
 SPA_TRAIN = '../translit_SPA-POR.train_set'
 SPA_TEST = '../translit_SPA-POR.test_set'
-RUS_TRAIN = '../translit_ENG-RUS.train_set'
-RUS_TEST = '../translit_ENG-RUS.test_set'
 
 class Model:
     def __init__(self):
@@ -26,6 +24,7 @@ class RulesModel(Model):
 
     def translate(self, word):
         indices = []
+        rules = []
         for left, right in self.rules:
             if left not in word:
                 continue
@@ -42,6 +41,7 @@ class RulesModel(Model):
             if rule_ok:
                 indices.append((start, end))
                 word = word.replace(left, right)
+                rules.append((left,right))
         
         return word
 
@@ -60,8 +60,7 @@ if __name__ == '__main__':
 
     for word, translations in test_data:
         model_translation = model.translate(word)
-        dist = min([distance(model_translation, translation) for translation in
-        translations])
+        dist,translation = min([(distance(model_translation, tr), tr) for tr in translations])
 
         if dist == 0:
             ok_count += 1

@@ -1,23 +1,21 @@
 #!/usr/bin/python3
 import re, sys
 
-filename = sys.argv[1]
-input_lang = sys.argv[2]
-output_lang = sys.argv[3]
+_, filename, label, action = sys.argv
 
-en_filename = 'output/translit_%s-%s.%s' % (input_lang, output_lang, input_lang)
-ru_filename = 'output/translit_%s-%s.%s' % (input_lang, output_lang,
-        output_lang)
+ext = '.test' if action == 'test' else ''
+input_filename = 'output/translit_%s%s.input' % (label, ext)
+output_filename = 'output/translit_%s%s.out' % (label, ext)
 
-en_file = open(en_filename, 'w')
-ru_file = open(ru_filename, 'w')
+with open(input_filename, 'w') as input_file, open(output_filename, 'w') as output_file:
+    lines = open(filename).readlines()
+    for line in lines:
+        words = re.findall('#(.*?)#', line)
 
-lines = open(filename).readlines()
-for line in lines:
-    en, ru = re.findall('#(.*?)#', line)
-    en_file.write(' '.join(en) + '\n')
-    ru_file.write(' '.join(ru) + '\n')
+        input_file.write(' '.join(words[0]) + '\n')
 
-en_file.close()
-ru_file.close()
+        if action == 'test':
+            output_file.write(';'.join([' '.join(w) for w in words[1:]]) + '\n')
+        else:
+            output_file.write(' '.join(words[1]) + '\n')
 
