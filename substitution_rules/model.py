@@ -4,17 +4,9 @@ from utils import *
 SPA_TRAIN = '../translit_SPA-POR.train_set'
 SPA_TEST = '../translit_SPA-POR.test_set'
 
-class Model:
-    def __init__(self):
-        pass
-    def train(self, data):
-        pass
-    def translate(self, word):
-        return word
-
-class RulesModel(Model):
+class RulesModel():
     def __init__(self, rule_file):
-        lines = open(rule_file).readlines()
+        lines = rule_file.readlines()
         
         if lines[0].startswith('%'):
             print(lines[0][1:-1])
@@ -49,10 +41,7 @@ training_data = data(SPA_TRAIN)
 test_data = data(SPA_TEST, True)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        model = Model()
-    else:
-        model = RulesModel(sys.argv[1])
+    model = RulesModel(sys.stdin)
 
     total = len(test_data)
     dist_sum = 0
@@ -67,8 +56,7 @@ if __name__ == '__main__':
         
         dist_sum += dist
     
-    print('accuracy: %.1f%%, average distance: %.3f' % (100 * ok_count / total,
-        dist_sum / total))
+    print('accuracy: %.1f%%, average distance: %.3f, rules: %d' % (100 * ok_count / total, dist_sum / total, len(model.rules)))
 
 """
 conf=0.80, sup=2, len=4

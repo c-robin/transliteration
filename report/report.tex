@@ -47,19 +47,75 @@ Comme nous disposons de données de test et d'apprentissage, la question de la m
 
 \paragraph{Métriques d'évaluation}
 Nous devons choisir une métrique afin de mesurer les performances de nos classifieurs, et fournir une moyen de comparaison (avec d'autres classifieurs, une baseline, ou un opérateur humain).
-Nous mesurons la précision de notre système, c'est à dire la proportion de mots correctement traduits.
+Nous mesurons la précision de notre système, c'est à dire la proportion de mots correctement traduits. Cependant, ce n'est pas suffisant car si la transcription choisie n'est pas correcte, il se peut qu'elle ne soit pas loin de la vérité.
+
+Le même problème se pose dans la traduction automatique, de manière encore plus accentuée, car le vocabulaire est beaucoup plus grand, et les candidats de traduction sont souvent bien plus nombreux. Même dans les systèmes de traduction modernes, il est très fréquent que la traduction comporte au moins une erreur, sans toutefois empêcher la compréhension de la phrase traduite. Une métrique couramment utilisée dans ce type de système, est le \emph{Word Error Rate}, qui est une distance d'édition (Levenshtein), adaptée aux phrases\footnote{On compte le nombre de mots qui diffèrent.}.
+Aussi, pour notre système de translittération, nous utiliserons une distance de \emph{Levenshtein}\footnote{Nombre minimal d'insertions, suppressions ou substitutions de lettres dans le mot original pour obtenir le mot cible.} pour évaluer la distance entre la proposition de notre système, et la/les transcription(s) attendu(es).
+
+Dans les données de test, les mots peuvent posséder plusieurs transcriptions acceptables. Dans ce cas, on mesure la distance au mot le plus similaire à la proposition du système.
+
+$d(x,y) = \min_{y' \in traductions(x)} \{\delta(y,y')\}$
+
+où $\delta(y,y')=levenshtein(y,y')$
+
+Pour la précision, nous jugeons que la transcription est correcte si elle est égale à une des transcriptions possible.
+
+Ces deux métriques donnent un résumé acceptable des performances du système.
 
 \section{Règles de substitution}
 Nous avons observé que dans le cas de l'espagnol et le portugais, les mots sont très similaires dans les deux langages. Dans les données d'apprentissage, la distance d'édition moyenne entre un mot espagnol et sa transcription en portugais est de \emph{2.0}.
-Lorsque nous utilisons comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06}.
+Lorsque nous utilisons comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons donc une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06} (au mot le plus similaire dans les candidats).
 
 \paragraph{}
-Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes, obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
+Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes (que nous avons sélectionnées manuellement), obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
 \begin{verbatim}
 is#->e#
 ción#->ção#
 ido#->ídeo#
 \end{verbatim}
+La progression est flagrante, avec seulement trois règles. Cela nous a amené à penser qu'un système sélectionnant automatiquement des règles de substitution basiques, pourrait obtenir de très bons résultats.
+
+\paragraph{Résultats}
+Le score maximal que nous parvenons à atteindre avec ce système est de \emph{69.0\%}.
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+Règles&Précision&Distance d'édition\\
+\hline
+Aucune&51.0\%&1.06\\
+\hline
+3 (manuel)&58.6\%&0.76\\
+\hline
+584 ($s=2, l=5, c=0.8$)&\textbf{69.0\%}&\textbf{0.58}\\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|c|c|c||c|c|c|}
+\hline
+Support&Longueur&Confiance&Précision&Distance&Règles\\
+\hline
+2&6&0.80&56.8\%&0.82&104\\
+\hline
+2&5&0.80&\textbf{69.0\%}&\textbf{0.58}&315\\
+\hline
+2&4&0.80&68.1\%&0.59&584\\
+\hline
+\hline
+3&5&0.80&67.3\%&0.61&195\\
+\hline
+5&5&0.80&67.2\%&0.61&\textbf{128}\\
+\hline
+1&5&0.80&64.5\%&0.68&1490\\
+\hline
+\hline
+2&5&0.75&68.5\%&0.59&340\\
+\hline
+2&5&0.85&68.4\%&0.59&287\\
+\hline
+\end{tabular}
+\end{center}
 
 \section{Translittération statistique}
 Le problème de la translittération est relativement proche de la traduction automatique. En traduction automatique, on traduit des séquences de mots d'un langage à un autre. Cela se caractérise par l'association à chaque mot (ou groupe de mots) de la phrase original, d'un mot (ou groupe de mots) dans le langage cible, avec un réordonnancement possible.

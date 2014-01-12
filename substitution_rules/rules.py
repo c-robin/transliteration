@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from utils import *
 from collections import defaultdict
-import random
+import random, sys
 
 SPA_TRAIN = '../translit_SPA-POR.train_set'
 
@@ -138,28 +138,31 @@ def keep_rule(rule, rules):
     return True
 
 if __name__ == '__main__':
-    if len(sys.argv) != 5:
-        sys.exit('Usage: %s confidence support length output' % sys.argv[0])
+    if len(sys.argv) < 4:
+        sys.exit('Usage: %s confidence support length [output]' % sys.argv[0])
 
     min_confidence = float(sys.argv[1])
     min_support = int(sys.argv[2])
     min_length = int(sys.argv[3])
-    output = sys.argv[4]
+    
+    if len(sys.argv) >= 5:
+        output = open(sys.argv[4], 'w')
+    else:
+        output = sys.stdout
 
     training_data = data(SPA_TRAIN)
     als = alignments(training_data)
 
-    f = open(output, 'w')
     rules = find_rules(als, min_confidence, min_support, min_length)
-    f.write('%%conf=%.2f, sup=%d, len=%d\n' % (min_confidence, min_support,
-        min_length))
+    output.write('%%conf=%.2f, sup=%d, len=%d, count=%d\n' % (min_confidence, min_support,
+        min_length, len(rules)))
     
     # Apply more specific rules before more general ones (order by length)
     rules = sorted(rules.items(), key=lambda x: len(x[0]), reverse=True)
     rules = [(l, r) for (l, (r, s, c)) in rules]
 
     for left, right in rules:
-        f.write('%s->%s\n' % (left, right))
+        output.write('%s->%s\n' % (left, right))
     
-    f.close()
+    output.close()
 
