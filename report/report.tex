@@ -36,8 +36,17 @@ Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux
 \end{verbatim}
 \end{figure}
 
+\subsection{Processus d'évaluation}
+\paragraph{Ensembles de test et d'apprentissage}
+Comme nous disposons de données de test et d'apprentissage, la question de la méthode d'échantillonage à utiliser ne se pose pas.
+
+\paragraph{Métriques d'évaluation}
+Nous devons choisir une métrique afin de mesurer les performances de nos classifieurs, et fournir une moyen de comparaison (avec d'autres classifieurs, une baseline, ou un opérateur humain).
+Nous mesurons la précision de notre système, c'est à dire la proportion de mots correctement traduits.
+
 \section{Règles de substitution}
 Nous avons observé que dans le cas de l'espagnol et le portugais, les mots sont très similaires dans les deux langages. Dans les données d'apprentissage, la distance d'édition moyenne entre un mot espagnol et sa transcription en portugais est de \emph{2.0}.
+Lorsque nous utilisons comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06}.
 
 \paragraph{}
 Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes, obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
