@@ -105,6 +105,7 @@ def find_rules(alignments, min_confidence, min_support, min_length):
     seen_candidates = set()
 
     for alignment in alignments:
+        print(alignment)
         candidates = candidate_gen(alignment)
         for pattern in candidates:
             # No need to check a pattern that has already been checked.
@@ -154,8 +155,8 @@ if __name__ == '__main__':
     als = alignments(training_data)
 
     rules = find_rules(als, min_confidence, min_support, min_length)
-    output.write('%%conf=%.2f, sup=%d, len=%d, count=%d\n' % (min_confidence, min_support,
-        min_length, len(rules)))
+    output.write('%%conf=%.2f, sup=%d, len=%d\n' % (min_confidence, min_support,
+        min_length))
     
     # Apply more specific rules before more general ones (order by length)
     rules = sorted(rules.items(), key=lambda x: len(x[0]), reverse=True)
