@@ -29,14 +29,11 @@
     \frametitle{Introduction}
 	\framesubtitle{Translitération}
 	\begin{block}{Definition}
-	    \begin{itemize}
-	    \item Remplacement d'un graphème d'un système d'écriture par un ou plusieurs graphèmes d'un autre système d'écriture
-    		\item Indépendent de la prononciation
-    		\end{itemize}
+	    Remplacement d'un graphème d'un système d'écriture par un ou plusieurs graphèmes d'un autre système d'écriture
     \end{block}	    
     
 	\begin{exampleblock}{Examples : anglais - hindi}
-	\includegraphics[scale=0.3]{en-in-example}
+	\includegraphics[scale=0.2]{en-in-example}
     \end{exampleblock}
     
 	\begin{block}{Pourquoi ?}
@@ -72,7 +69,9 @@
 
 \end{frame}
 
-\section{Méthodologie}
+\section{Translittération}
+
+\subsection{Méthodologie}
 
 \begin{frame}
 \frametitle{Méthodologie}
@@ -82,15 +81,18 @@
 	$\Longrightarrow$ L'échantillonage n'est pas nécéssaire
 	\end{block}
 
-	\begin{block}{Mesures}
-	Deux mesures :
+	\begin{block}{Métriques}
+	Deux métriques  :
 		\begin{itemize}
-		\item 
+		\item Précision (distance binaire ????)
+		\item Distance de levenstein : $d(x,y) = \min_{y' \in traductions(x)} \{\delta(y,y')\}$
+
+où $\delta(y,y')=levenshtein(y,y')$
 		\end{itemize}		
 	\end{block}
-
-
 \end{frame}
+
+\subsection{Translittération par règles de substitution}
 
 
 
