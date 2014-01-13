@@ -95,6 +95,30 @@ où $\delta(y,y')=levenshtein(y,y')$
 \subsection{Translittération par règles de substitution}
 
 
+\begin{frame}[fragile]
+	\frametitle{Espagnol - Portugais}
+
+	\begin{block}{Premières considérations}
+		\begin{itemize}
+		\item Les deux langues sont très proches (51\% de précision sans rien faire)
+		\item En appliquant les trois règles suivantes : {\scriptsize \begin{verbatim}
+			is#->e#
+			ción#->ção#
+			ido#->ídeo#
+			\end{verbatim}}
+			nous obtenons 57\% de précision
+		\end{itemize}
+	\end{block}
+
+	\begin{alertblock}{}
+	$\Longrightarrow$ De bons résultat peuvent être obtenus en déterminant des règles automatiquement 
+	\end{alertblock}
+\end{frame}
+
+\begin{frame}
+
+\end{frame}
+
 
 \begin{frame}
     \frametitle{Bibliography}
