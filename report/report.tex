@@ -70,10 +70,10 @@ Ces deux métriques donnent un résumé acceptable des performances du système.
 
 \section{Règles de substitution}
 Nous avons observé que dans le cas de l'espagnol et le portugais, les mots sont très similaires dans les deux langages. Dans les données d'apprentissage, la distance d'édition moyenne entre un mot espagnol et sa transcription en portugais est de \emph{2.0}.
-Lorsque nous utilisons comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons donc une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06} (au mot le plus similaire dans les candidats).
+Lorsque nous utilisons, comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons donc une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06} (au mot le plus similaire dans les candidats).
 
 \paragraph{}
-Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes (que nous avons sélectionnées manuellement), obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
+Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes (que nous avons sélectionné manuellement), obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
 \begin{verbatim}
 is#->e#
 ción#->ção#
