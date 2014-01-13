@@ -7,6 +7,7 @@
 \usepackage[T2A,T1]{fontenc}
 \usepackage[russian,french]{babel}
 \usepackage{tikz}
+\usepackage{amsmath}
 
 
 
@@ -48,6 +49,7 @@ Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux
 \end{figure}
 
 \subsection{Processus d'évaluation}
+\label{eval}
 \paragraph{Ensembles de test et d'apprentissage}
 Comme nous disposons de données de test et d'apprentissage, la question de la méthode d'échantillonage à utiliser ne se pose pas.
 
@@ -165,10 +167,53 @@ Le problème de la translittération est relativement proche de la traduction au
 \end{figure}
 
 \section{CRF}
-Les CRF \emph{Conditionnal Random Fields}
+Les CRF \emph{Conditionnal Random Fields} sont des modèles statisitques permettant de prendre plus de contexte qu'un classifieur "ordinaire". Ils permettent l'étiquettage de séquences. Ils ont été introduit par \cite{Lafferty01}. L'équation principale des CRF est donnée à l'équation \ref{eqcrf}.
+\begin{equation}
+p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
+\label{eqcrf}
+\end{equation}
+Les $f_k$ sont des fonctions \emph{feature} données par l'utilisateur nécéssiatant certains arguments, et les $\lambda_k$ sont des poids qui sont appris grâce aux données d'apprentissage.\textbf{s} et \textbf{s} étant respectivement une séquence d'état et la séquence des observations (ici les lettres). Les fonctions features sont des fonctions qui ont pour valeur 0 presque sur tout leur domaine et 1 sinon.
+
+Nous avons utilisé dans le cadre de ce projet, l'implémentation CRF++\footnote{https://code.google.com/p/crfpp/}.
+
+\paragraph{Apprentissage}
+Dans le cas de l'apprentissage des CRF, nous avons du en premier lieu aligner lettre à lettre les mots et leurs traductions dans l'ensemble d'apprentissage. Pour celà nous avons utilisé l'algorithme \emph{dpalign} dont une implémentation en perl est disponible sur le site du cours. Nous avons ensuite donner ces données à CRF++ en plus d'un fichier \emph{template} décrivant les fonctions features que nous souhaitons utiliser. Nous avons choisi comme fonctions features des unigrammes. Le contenu du fichier template est le suivant :
+\begin{verbatim}
+# Unigram
+U0:%x[0,0]
+U1:%x[-1,0]
+U2:%x[1,0]
+U3:%x[-2,0]
+U4:%x[2,0]
+U5:%x[-3,0]
+U6:%x[3,0]
+
+# Bigram
+B
+\end{verbatim}
+
+\paragraph{Évaluation}
+Nous testons ensuite le modèle CRF obtenu grace aux données de test, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long.
+
+\paragraph{Résultats}
+Un récapitualatif de nos résultats est disponible ci-dessous sur le jeu de données \emph{Espagnol-Portugais}. Nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre baseline ainsi qu'avec les trois règles de substitutions trouvées manuellement.
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+Règles&Précision&Distance d'édition\\
+\hline
+Baseline&51.0\%&1.06\\
+\hline
+3 subst.&58.6\%&0.76\\
+\hline
+CRF&\textbf{63.9\%}&\textbf{0.69}\\
+\hline
+\end{tabular}
+\end{center}
+
 \section{Conclusion et perspectives}
 \nocite{*}
-\bibliographystyle{plain}
+\bibliographystyle{apalike}
 \bibliography{report}
 
 \end{document}
