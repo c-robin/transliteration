@@ -1,0 +1,580 @@
+#!/usr/bin/perl -w
+#
+# $Source: /home/cnts-cvs/cvsroot/dpalign/dpalign.pl,v $
+# $Revision: 1.6 $
+# $Author: decadt $
+# $Date: 2005/04/26 12:25:33 $
+#
+################
+# MAIN PROGRAM #
+################
+#
+use strict;
+use locale;
+use open ':utf8';
+use Getopt::Std;
+
+if(!($Getopt::Std::STANDARD_HELP_VERSION))
+  { $Getopt::Std::STANDARD_HELP_VERSION = 1 }
+my $Source = "/home/cnts-cvs/cvsroot/dpalign/dpalign.pl,v";
+my $Version = 1.6;
+my $Author = "decadt";
+my $Date = "2005/04/26 12:25:33";
+
+#
+# Get the command line arguments
+our $opt_f = our $opt_h = our $opt_d = our $opt_i = our $opt_c =
+    our $opt_v = our $opt_l1 = our $opt_l2 = undef;
+getopts('f:dichvl1l2');
+#
+# Print help or version
+&VERSION_MESSAGE() if(defined($opt_h) or defined($opt_v));
+#
+# Command line arguments '-d' and '-i' are mutually exclusive
+if(defined($opt_d) && defined($opt_i)) {
+    
+    die("\nERROR: use either '-d' or '-i', not both!\n\n");
+    
+}
+
+my $codel1 = "ENG";
+if(defined($opt_l1)) { $codel1 = $opt_l1 }
+
+my $codel2 = "ENG";
+if(defined($opt_l2)) { $codel2 = $opt_l2 }
+
+
+&VERSION_MESSAGE();
+#
+# STEP 1 - open input, then check it and perform the initial alignment
+defined($opt_f) or die("\nERROR: specify the file for input with '-f'!\n\n");
+open(INPUT,$opt_f) or die("\nERROR: file $opt_h cannot be opened for ".
+			  "input!\n\n");
+print STDERR "* checking the input file and performing initial alignment\n";
+my $line_num = my $index = 0;
+my @input = my @aligned_input = ();
+while(<INPUT>) 
+  {
+    chomp($_);
+    $line_num++;
+    my @strings = split(/\s/);
+
+    # Check if the line contains a pair of strings
+    if(@strings == 2) 
+      {
+
+	# If deletions are not allowed, then string 1 should always be longer 
+	# than string 2 - if not, mark that line as ignored
+	if(defined($opt_d) && length($strings[0]) > length($strings[1])) 
+          { $input[$index] = "IGNORED : $strings[0] $strings[1]"; }
+
+	# If insertions are not allowed, then string 1 should always be
+	# shorter than string 2 - if not, mark that line as ignored
+	elsif(defined($opt_i) && length($strings[0]) < length($strings[1])) 
+          { $input[$index] = "IGNORED : $strings[0] $strings[1]"; }
+
+	# If the line is in the correct format, then we can use it
+	else 
+          {
+	    $input[$index][0] = $strings[0];
+	    $input[$index][1] = $strings[1];
+
+	    # Initial alignment : append '_' to the shortest string of the two,
+	    # until both strings have an equal length
+            # in case of use with learn-translit, _ are added before the
+            # end-of-string symbol (#)
+	    my $diff_1 = my $diff_2 = 0;
+	    if(Longueur($strings[0],$codel1) > Longueur($strings[1],$codel2)) 
+              { $diff_1 = Longueur($strings[0],$codel1) - Longueur($strings[1],$codel2) }
+	    elsif(Longueur($strings[0],$codel1) < Longueur($strings[1],$codel2)) 
+              { $diff_2 = Longueur($strings[1],$codel2) - Longueur($strings[0],$codel1) }
+
+            if ($strings[0] =~ /^(.+)#$/)
+              { $aligned_input[$index][0] = $1.("_" x $diff_2)."#" }
+            else { $aligned_input[$index][0] = $strings[0]."_" x $diff_2 }
+              
+	    if ($strings[1] =~ /^(.+)#$/)
+              { $aligned_input[$index][1] = $1.("_" x $diff_1)."#" }
+            else { $aligned_input[$index][1] = $strings[1]."_" x $diff_1 }
+          }
+
+	$index++;
+        
+      }
+    elsif($_ =~ /^<\/?utt>$/) 
+      {
+	$input[$index] = $_;
+	$index++;
+      }
+  }
+close(INPUT);
+print STDERR "* input OK\n";
+#
+# ITERATION PHASE : improve alignment until convergence
+my $iterate = 1;
+my $iteration_num = 0;
+my $total_cost_old = undef;
+my %frequencies = my %alignment_frequencies = my %costs = my %old_costs =
+    my %distance = ();
+my @old_aligned_input = ();
+my $deletion_cost = my $insertion_cost = 1;
+while($iterate) {
+
+    $iteration_num++;
+
+    # STEP 2 - count character frequencies and compute probabilities
+    printf STDERR ("* iteration %3d ...", $iteration_num);
+
+    # Empty %alignment_frequencies
+    %alignment_frequencies = ();
+
+    # (Re)set the total cost and the change indicator to 0
+    my $total_cost_current = 0;
+    my $change = 0;
+    for(my $i = 0; $i < @aligned_input; $i++) 
+      {
+	if(defined($aligned_input[$i])) 
+          {
+	    my @characters_1 = SplitTerm($aligned_input[$i][0],$codel1);
+	    my @characters_2 = SplitTerm($aligned_input[$i][1],$codel2);
+
+	    for(my $j = 0; $j < @characters_1; $j++) 
+              {
+		# Frequencies of characters in string 1 have to be counted
+		# only in the first iteration
+		if($iteration_num == 1 and $characters_1[$j] ne "_") 
+                  { $frequencies{$characters_1[$j]}++ }
+
+		# Frequencies of alignment (char. 1, char. 2) have to be
+		# counted every iteration
+		if($characters_1[$j] ne "_" and $characters_2[$j] ne "_") 
+                  { $alignment_frequencies{$characters_1[$j]}{$characters_2[$j]}++ }
+
+              }
+          }
+      }
+
+    # STEP 3 - compute the costs for aligning (char. 1, char. 2) as 1 - p
+    # where p = f(char. 1, char. 2) / f (char. 2)
+    #
+    # Store the old costs before changing %costs if the users wants the costs
+    # to printed out
+    if(defined($opt_c)) 
+      {
+	%old_costs = ();
+
+	foreach my $character_1 (keys %costs) 
+          {
+	    foreach my $character_2 (keys %{$costs{$character_1}}) 
+              { $old_costs{$character_1}{$character_2} = $costs{$character_1}{$character_2}; }
+
+          }
+
+      }
+
+    # Empty %costs
+    %costs = ();
+
+    # Compute and store the new costs
+    foreach my $character_1 (keys %frequencies)
+      {
+	foreach my $character_2 (keys %{$alignment_frequencies{$character_1}})
+	  {
+	    $costs{$character_1}{$character_2} = 1 -
+		($alignment_frequencies{$character_1}{$character_2} /
+		 $frequencies{$character_1});
+
+	  }
+      }
+
+    # STEP 4 - make a new alignment with new costs according to the dynamic
+    # programming algorithm
+    for(my $i = 0; $i < @input; $i++)
+      {
+	if($input[$i] !~ /utt|IGNORED/) {
+
+	    # If deletions are not allowed, set the cost for a deletion as 
+	    # length string 1 * 2
+
+	    if(defined($opt_d)) { $deletion_cost = length($input[$i][0]) * 2; }
+
+	    # If insertions are not allowed, set the cost for an insertion as 
+	    # length string 1 * 2
+	    if(defined($opt_i)) { $insertion_cost = length($input[$i][0]) * 2; }
+
+	    # Make a distance matrix
+	    %distance = &make_matrix(\$input[$i][0],\$input[$i][1]);
+
+	    # Within the matrix, search for the path with the lowest cost
+	    (my $string_1,my $string_2,my $cost) =
+		&make_alignment(\$input[$i][0],\$input[$i][1]);
+
+	    # Add the cost for aligning the current strings to the total cost
+	    $total_cost_current += $cost;
+
+	    # Store the old alignment
+	    $old_aligned_input[$i][0] = $aligned_input[$i][0];
+	    $old_aligned_input[$i][1] = $aligned_input[$i][1];
+
+	    # Store the new alignment
+	    $aligned_input[$i][0] = $string_1;
+	    $aligned_input[$i][1] = $string_2;
+
+	    # Check if something changed in the alignment
+	    if($string_1 ne $old_aligned_input[$i][0] or
+	       $string_2 ne $old_aligned_input[$i][1]) 
+	      { $change = 1; }
+
+	}
+
+    }
+
+    # STEP 5 - if this is the first alignment, or if the current total cost is 
+    # lower than the  old total cost and something in the alignment changed,
+    # then keep on iterating - go back to step 2
+    if((not(defined($total_cost_old)) or $total_cost_current < $total_cost_old)
+       and $change) {
+
+	$total_cost_old =  $total_cost_current;
+	print STDERR " done - no convergence\n";
+
+    }
+    # If the current total cost is higher, or if nothing changed, stop 
+    # iterating - go to step 6
+    else { $iterate = 0; print STDERR " done - convergence\n"; }
+
+}
+#
+# STEP 6 - print the old alignment to an outputfile
+open(OUTPUT,">$opt_f.dpalign") or
+    die("ERROR: cannot open file '$opt_f.dpalign' for output\n");
+for(my $i = 0; $i < @input; $i++) {
+
+    if($input[$i] !~ /utt|IGNORED/) {
+
+	print OUTPUT "$old_aligned_input[$i][0] $old_aligned_input[$i][1]\n";
+
+    }
+    else {
+
+	print OUTPUT "$input[$i]\n";
+
+    }
+
+}
+close(OUTPUT);
+
+print STDERR "* aligned strings saved in '$opt_f.dpalign'";
+#
+# If the user asked for it, print the character alignment costs
+if($opt_c) {
+    open(OUTPUT,">$opt_f.costs") or
+	die("ERROR: cannot open file '$opt_f.costs' for output\n");
+    foreach my $character_1 (keys %old_costs) {
+	foreach my $character_2 (keys %{$old_costs{$character_1}}) {
+	    printf OUTPUT ("%s %s %.1f\n", $character_1, $character_2,
+			   $old_costs{$character_1}{$character_2});
+	}
+    }
+    close(OUTPUT);
+    print STDERR "\n* character alignment costs saved in '$opt_f.costs'";
+}
+print STDERR "\n\n";
+exit 0;
+#
+###############
+# SUBROUTINES #
+###############
+#
+# Compute the distance between each character pair and store this distance in a
+# matrix
+sub make_matrix {
+    my @string_1 = SplitTerm(${$_[0]},$codel1); 
+    my @string_2 = SplitTerm(${$_[1]},$codel2);
+    my %distance = ();
+    $distance{-1,-1} = 0;
+    for(my $i = 0; $i < @string_1; $i++) 
+      {
+	$distance{$i,-1} = ($distance{$i-1,-1} + &return_distance($string_1[$i],"_"));
+      }
+    for(my $i = 0; $i < @string_2; $i++) 
+      {
+	$distance{-1,$i} = ($distance{-1,$i-1} + &return_distance("_",$string_2[$i]));
+      }
+    for(my $i = 0; $i < @string_1; $i++)
+      {
+	for(my $j = 0; $j < @string_2; $j++)
+	  {
+	    $distance{$i,$j} = &min($distance{$i-1,$j-1} + &return_distance($string_1[$i],
+						     $string_2[$j]),
+				    $distance{$i-1,$j} + &return_distance($string_1[$i],"_"),
+				    $distance{$i,$j-1} + &return_distance("_",$string_2[$j]));
+	  }
+      }
+    return(%distance);
+}
+#
+# Return the distance between two characters
+sub return_distance {
+    if(defined($costs{$_[0]}{$_[1]})) {
+	return($costs{$_[0]}{$_[1]});
+    }
+    elsif($_[0] eq "_") {
+	return $insertion_cost;
+    }
+    elsif($_[1] eq "_") {
+	return $deletion_cost;
+    }
+    else { return 2; }
+    
+}
+#
+# Align the two strings by searching for the path with the lowest cost in the 
+# distance matrix, and return the aligned strings and the cost of the alignment
+sub make_alignment {
+    my @string_1 = SplitTerm(${$_[0]},$codel1); 
+    my @string_2 = SplitTerm(${$_[1]},$codel2);
+    my $i = $#string_1;
+    my $j = $#string_2;
+    my $aligned_characters_1 = "";
+    my $aligned_characters_2 = "";
+    my $distance = 0;
+    while($i >= 0 and $j >= 0)
+      {
+	$distance += $distance{$i,$j};
+	if ($distance{$i,$j} == ($distance{$i-1,$j} +
+				 &return_distance($string_1[$i],"_")))
+	  {
+	    $aligned_characters_1 = $string_1[$i].$aligned_characters_1;
+	    $aligned_characters_2 = "_".$aligned_characters_2;
+	    $i--;
+	  }
+	elsif ($distance{$i,$j} == ($distance{$i,$j-1} +
+				    &return_distance("_",$string_2[$j]))) 
+	  {
+	    $aligned_characters_1 = "_".$aligned_characters_1;
+	    $aligned_characters_2 = $string_2[$j].$aligned_characters_2;
+	    $j--;
+	  }
+	else 
+	  {
+	    $aligned_characters_1 = $string_1[$i].$aligned_characters_1;
+	    $aligned_characters_2 = $string_2[$j].$aligned_characters_2;
+	    $i--; $j--;
+	  }
+      }
+
+    while($i >= 0) 
+      {
+	$aligned_characters_1 = $string_1[$i].$aligned_characters_1;
+	$aligned_characters_2 = "_".$aligned_characters_2;
+	$i--;
+      }
+
+    while($j >= 0) 
+      {
+	$aligned_characters_1 = "_".$aligned_characters_1;
+	$aligned_characters_2 = $string_2[$j].$aligned_characters_2;
+	$j--;
+      }
+    
+    return($aligned_characters_1,$aligned_characters_2,$distance);
+}
+
+
+#
+# Return the lowest number of a list of three
+sub min {
+    my $result = $_[0];
+    for(my $i = 1; $i < @_; $i++)
+      {
+	if($result > $_[$i]) { $result = $_[$i] }
+      }
+    return($result);
+}
+
+
+#
+# Ajout vincent : pour gerer l'utf-8 et le codage d'un car sur plusieurs
+# octets
+sub SplitTerm {
+  my ($string,$code) = @_;
+  my @ret;
+  my $phonetic = chr(12540);
+
+  if ($code eq "JPN")
+    { 
+      while ($string =~ /^([0-9\p{katakana}\p{hiragana}_\-$phonetic])([0-9\p{katakana}\p{hiragana}_\-$phonetic]*)$/)
+        { push(@ret,$1); $string = $2; }
+    }
+  elsif ($code eq "RUS")
+    { 
+      while ($string =~ /^([0-9\p{cyrillic}\-])([0-9\p{cyrillic}\-]*)$/)
+        { push(@ret,$1); $string = $2; }
+    }
+  elsif (1)
+    { @ret = split(//,$string) }
+ 
+
+  return @ret;
+}
+
+
+#
+# Ajout vincent : pour gerer l'utf-8 et le codage d'un car sur plusieurs
+# octets
+sub Longueur {
+  my ($string,$code) = @_;
+  my $ret;
+  my $phonetic = chr(12540);
+
+  if ($code eq "JPN")
+    { 
+      my @ret;
+      while ($string =~ /^([0-9\p{katakana}\p{hiragana}_\-$phonetic])([0-9\p{katakana}\p{hiragana}_\-$phonetic]*)$/)
+        { push(@ret,$1); $string = $2; }
+      $ret = scalar(@ret);
+    }
+  elsif ($code eq "RUS")
+    { 
+      my @ret;
+      while ($string =~ /^([0-9\p{cyrillic}\-])([0-9\p{cyrillic}\-]*)$/)
+        { push(@ret,$1); $string = $2; }
+      $ret = scalar(@ret);
+    }
+  elsif (1)
+    { $ret = length($string) }
+ 
+
+  return $ret;
+}
+
+
+
+
+#
+# Help message
+sub HELP_MESSAGE() {
+
+    print STDERR "Author    : Bart Decadt <bart.decadt\@ua.ac.be> ",
+    "(CNTS, Univ. of Antwerp)\n",
+    "Usage     : dpalign [OPTIONS : -d -i -c] -f <INPUT FILE>\n",
+    "More info : run 'perldoc -F dpalign.pl'\n\n";
+
+    exit 0;
+
+}
+
+
+
+#
+# Version message
+sub VERSION_MESSAGE() {
+
+  print STDERR "\ndpalign - string alignment through dynamic ",
+    "programming\n",
+      "version $Version ($Date)\n\n";
+
+  if($opt_h) { &HELP_MESSAGE() }
+
+  if($opt_v) { exit 0 }
+
+}
+
+###########################
+# PLAIN OLD DOCUMENTATION #
+###########################
+
+=head1 NAME
+
+dpalign - string alignment through dynamic programming
+
+=head1 SYNOPSIS
+
+dpalign [OPTIONS] -f <INPUT FILE>
+
+=head1 OPTIONS
+
+=over 5
+
+=item B<-d> :
+
+do not allow deletions
+
+=item B<-i> :
+
+do not allow insertions
+
+=item B<-c> :
+
+store the costs for aligning two characters in a file with the same name as the
+input file and the extension 'costs'
+
+=item B<-l1> :
+
+ajout vincent: indicate the language 1 (to choose the correct charset)
+
+=item B<-l2> :
+
+ajout vincent: indicate the language 2 (to choose the correct charset)
+
+=item B<-h,--help> :
+
+print a help message
+
+=item B<-v,--version> :
+
+print the version number
+
+=back
+
+=head1 DESCRIPTION
+
+This script aligns two strings of characters in order to detect substitutions,
+deletions and insertions. It was originally developed for aligning strings of
+graphemes with strings of phonemes, or vice versa.
+
+The script requires an input file in which each line contains exactly two
+strings of characters, separated by whitespace. The output of the script
+is stored in a file with the same name as the input file, but with the
+extension 'dpalign' appended to it.
+
+The algorithm used in this script is based on the dynamic programming (DP)
+algorithm for aligning two strings developped by Wagner & Fischer (1974). The
+DP algorithm needs information on the 'cost' for aligning two characters. This
+information is collected automatically:
+
+=over 4
+
+=item (1)
+
+First, an intial alignment is made by filling up the shortest string
+of the two with '-'.
+
+=item (2)
+
+Then, frequencies of all characters in the first string are counted,
+and probabilities for the alignment of a character from string 1 with a
+character from string 2 are computed (p = f(char_1,char_2) / f(char_1). The
+cost for aligning a character from string 1 with a character from string 2 is
+now 1 - p.
+
+=item (3)
+
+With these costs, a new alignment is made with the DP algorithm. The
+total cost of aligning all string pairs is the sum of the cost of each pair.
+
+=item (4)
+
+If (a) the total cost of the new alignment is lower than the cost of
+the previous one and (b) the new alignment is different from the old one,
+dpalign goes back to step (2). Else, dpalign goes to step (5).
+
+=item (5)
+
+The previous alignment is assumed to be the best one, and is printed
+to a file.
+
+=back
+
+=cut

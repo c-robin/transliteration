@@ -1,0 +1,13 @@
+Pour transformer des données utiliser le script tocrfpp.pl
+Usage ./tocrfpp chemin_du_fichier nombre_de_lignes_du_fichiers(defaut=1000000)
+
+apprendre le CRF à partir des données précédemment transformées
+crf_learn fichier_template(template.model) nom_du_fichier_exemples nom_fichier_sortie
+
+Tester le CRF obtenu
+crf_test -m nom_fichier_crf nom_fichier_test (verbose : -v 0/1/2) > res.txt
+
+Analyser les résultats
+./res.pl nom_du_fichier_test_correspondant res.txt
+
+
