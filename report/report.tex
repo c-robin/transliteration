@@ -4,7 +4,9 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{float}
-\usepackage[french]{babel}
+\usepackage[T2A,T1]{fontenc}
+\usepackage[russian,french]{babel}
+\usepackage{tikz}
 \begin{document}
 \title{Données Séquentielles et Symboliques: Translittération automatique}
 
@@ -154,9 +156,9 @@ Le problème de la translittération est relativement proche de la traduction au
 \caption{Alignement de mots en traduction, et alignment de lettres en translittération}
 \centering
 \vspace{0.3cm}
-\includegraphics[scale=0.25]{word_alignment.png}
+\includegraphics{word_alignment.pdf}
 \hspace{0.5cm}
-\includegraphics[scale=0.25]{letter_alignment.png}
+\includegraphics{letter_alignment.pdf}
 \end{figure}
 
 \section{Conclusion et perspectives}
