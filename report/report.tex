@@ -4,7 +4,12 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{float}
-\usepackage[french]{babel}
+\usepackage[T2A,T1]{fontenc}
+\usepackage[russian,french]{babel}
+\usepackage{tikz}
+
+
+
 \begin{document}
 \title{Données Séquentielles et Symboliques: Translittération automatique}
 
@@ -15,12 +20,14 @@
 \vspace{0.5em}
 \section{Introduction}
 
-La translittération est le fait de traduire, entre deux langues dont les graphèmes diffèrent\footnote{Un graphème est l'unité de l'écrit correspondant au phonème, une unité de prononciation orale}, un mot ayant la même (ou presque) prononciation dans les deux langues. C'est surtout le cas pour le vocabulaire technique, qui conserve  la même prononciation entre plusieurs langues, mais dont la transcription va varier (en particulier lorsque les langues sont écrites avec des alphabets différents).
+La translittération est le fait de remplacer chaque graphème d'un système d'écriture par graphème ou un groupe de graphèmes d'un autre système, indépendamment de la prononciation. La translittération peut être par exemple utilisée pour écrire un nom propre d'un alphabet dans un autre. 
 
-La translitération trouve un interêt lorsqu'elle est effectuée de manière automatique. En effet, avec l'aparition de nouveaux termes techniques, il est difficile de maintenir à jour des dictionnaires.\\
+La translittération automatique est un domaine particulier de la translittération, qui va trouver des application par exemple pour traduire des mots qui ne sont pas encore dans les dictionnaires, ou traduire automatiquement des requêtes effectuées dans des systèmes d'écriture peu utilisés sur internet [BIBLIO Transliteration as Alignment vs.Transliteration as Generation for Crosslingual Information Retrieval].
+
 
 \subsection{Jeux de données}
 Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux jeux de données, concernant respectivement la translittération de l'\emph{espagnol} au \emph{portugais} et de l'\emph{anglais} vers le \emph{russe}. Chacun de ces jeux de données est divisé en deux fichiers, un fichier pour l'apprentissage et un fichier pour l'évaluation. Le fichier d'apprentissage contient plusieurs milliers d'entrées (3057 pour le portugais, et 7262 pour le russe), chaque entrée correspondant à un mot dans la langue originale et sa transcription dans le langage cible. Les entrées dans le fichier d'évaluation, elles, peuvent cependant contenir plusieurs transcriptions pour un même mot. 
+
 
 \begin{figure}[H]
 \caption{Entrées dans le fichier d'apprentissage Espagnol-Portugais}
@@ -63,10 +70,10 @@ Ces deux métriques donnent un résumé acceptable des performances du système.
 
 \section{Règles de substitution}
 Nous avons observé que dans le cas de l'espagnol et le portugais, les mots sont très similaires dans les deux langages. Dans les données d'apprentissage, la distance d'édition moyenne entre un mot espagnol et sa transcription en portugais est de \emph{2.0}.
-Lorsque nous utilisons comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons donc une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06} (au mot le plus similaire dans les candidats).
+Lorsque nous utilisons, comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons donc une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06} (au mot le plus similaire dans les candidats).
 
 \paragraph{}
-Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes (que nous avons sélectionnées manuellement), obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
+Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes (que nous avons sélectionné manuellement), obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
 \begin{verbatim}
 is#->e#
 ción#->ção#
@@ -152,9 +159,9 @@ Le problème de la translittération est relativement proche de la traduction au
 \caption{Alignement de mots en traduction, et alignment de lettres en translittération}
 \centering
 \vspace{0.3cm}
-\includegraphics[scale=0.25]{word_alignment.png}
+\includegraphics{word_alignment.pdf}
 \hspace{0.5cm}
-\includegraphics[scale=0.25]{letter_alignment.png}
+\includegraphics{letter_alignment.pdf}
 \end{figure}
 
 \section{CRF}

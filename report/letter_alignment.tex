@@ -1,0 +1,32 @@
+\documentclass{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\begin{document}
+  \begin{tikzpicture}[font=\ttfamily] 
+    \tikzset{
+        block/.style = {rectangle, draw, text centered, minimum height=1.8em, node distance=0.8em},
+    }
+    \node [block] (a1) {B};
+    \node [block,right=of a1] (b1) {u};
+    \node [block,right=of b1] (c1) {d};
+    \node [block,right=of c1] (d1) {d};
+    \node [block,right=of d1] (e1) {hi};
+    \node [block,right=of e1] (f1) {sm};
+
+    \node [block,below=1.2em of a1] (a2) {Б};
+    \node [block,right=of a2] (b2) {у};
+    \node [block,right=of b2] (c2) {д};
+    \node [block,right=of c2] (d2) {д};
+    \node [block,right=of d2] (e2) {и};
+    \node [block,right=of e2] (f2) {зм};
+
+    \draw[->] (a1) -- (a2);
+    \draw[->] (b1) -- (b2);
+    \draw[->] (c1) -- (c2);
+    \draw[->] (d1) -- (d2);
+    \draw[->] (e1) -- (e2);
+    \draw[->] (f1) -- (f2);
+  \end{tikzpicture}
+\end{document}
