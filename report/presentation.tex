@@ -136,11 +136,71 @@ où $\delta(y,y')=levenshtein(y,y')$
 		\end{itemize}			
 	\end{block}
 
-	\begin{block}{}
-	
-	\end{block}
-
+	\begin{alertblock}{}
+	$\Longrightarrow$ Nous allons essayer de générer de règles en prenant ces deux paramètres en compte
+	\end{alertblock}
 \end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Apprentissage}
+\frametitle{Génération des règles}
+
+	\begin{block}{Partie gauche :}
+	 	\begin{itemize}
+	 	\item Aligner les mots : 
+	 	{\scriptsize \begin{verbatim} ('#catars', '#catars'), ('is', 'e'), ('#', '#')]}
+	 	 	 \end{verbatim}	}
+	 	
+	 	\item Enumérer la liste des candidats de gauche :\\
+	 		{\scriptsize \texttt{['is', 'sis', 'is\# ', 'sis\# ', ...]}	}  \\
+	 		et ne garder que ceux de longueur $> l$
+	 		 \vspace{0.6cm}
+	 		
+	 	\item Ne garder que les candidats ayant un support suffisant dans le corpus :
+	 	{\scriptsize \begin{verbatim}  len([w for w in words if 'is' in w]) > s
+		\end{verbatim}	}
+		
+		\end{itemize}
+	\end{block}
+	
+	\begin{block}{Partie droite :}
+	Ne garder que la partie droite qui offre le meilleur taux de confiance
+	\end{block}		
+\end{frame}
+
+\begin{frame}
+\frametitle{Résultats}
+
+\begin{center}
+\begin{tabular}{|c|c|c||c|c|c|}
+\hline
+Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
+\hline
+2&6&0.80&56.8\%&0.82&104\\
+\hline
+2&5&0.80&\textbf{69.0\%}&\textbf{0.58}&315\\
+\hline
+2&4&0.80&68.1\%&0.59&584\\
+\hline
+\hline
+3&5&0.80&67.3\%&0.61&195\\
+\hline
+5&5&0.80&67.2\%&0.61&\textbf{128}\\
+\hline
+1&5&0.80&64.5\%&0.68&1490\\
+\hline
+\hline
+2&5&0.75&68.5\%&0.59&340\\
+\hline
+2&5&0.85&68.4\%&0.59&287\\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+
+\section{CRF}
+
+
 
 
 \begin{frame}
