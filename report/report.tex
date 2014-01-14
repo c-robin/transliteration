@@ -164,6 +164,7 @@ Nous n'avons pas considéré l'utilisation de cette méthode sur les données \e
 Le problème de la translittération est relativement proche de la traduction automatique. En traduction automatique, on traduit des séquences de mots d'un langage à un autre. Cela se caractérise par l'association à chaque mot (ou groupe de mots) de la phrase original, d'un mot (ou groupe de mots) dans le langage cible, avec un réordonnancement possible. En translittération, on associe des lettres ou groupes de lettres.
 
 \begin{figure}[H]
+\label{translation_alignment}
 \caption{Traduction et translittération}
 \centering
 \vspace{0.3cm}
@@ -174,13 +175,34 @@ Le problème de la translittération est relativement proche de la traduction au
 
 La différence essentielle, par rapport à la traduction automatique est l'absence de réarrangements dans le résultat. En effet, dans certaines paires de langages, les mots doivent être réordonnés (e.g. les adjectifs entre le français et l'anglais). Ce n'est pas le cas dans la translittération.
 
+\paragraph{Traduction statistique}
+L'approche de traduction automatique avec le plus de succès est la \emph{traduction statistique}. La traduction statistique se base sur la \emph{loi de Bayes}:
+\begin{center}
+$e = arg max_{e \in e*} p(e|f) = arg max_{e \in e*} p(f|e)p(e)$
+\end{center}
+Où $f$ est la phrase à traduire, $e*$ est l'ensemble des traductions possible, et $e$ la traduction choisie. La probabilité $p(e)$ est le \emph{modèle de langue}. Il s'agit de la probabilité d'observer la phrase $e$ dans la langue cible. $p(f|e)$ est le modèle de traduction et dépend de l'approche utilisée. Ces probabilités sont souvent estimées avec un \emph{maximum de vraissemblance} sur de larges corpus de textes alignés dans les deux langues.
+
+
+La traduction syntagmatique (ou \emph{phrase-based traduction}), considère des \emph{syntagmes} comme unité de langage (\cite{Koehn03}). Un syntagme (ou \emph{phrase}) est un groupe de mots constituant une unité syntaxique (par ex., ``are playing'' est un syntagme). Les anciennes approches basées sur les mots se heurtaient à certaines difficultés, notamment pour traduire les expressions (par ex. ``kick the bucket''/``casser sa pipe'').
+
+Dans le cas de la translittération, l'approche syntagmatique est également très intéressante. Dans la \emph{Figure \ref{translation_alignment}}, ``sm'' et son équivalent russe sont des syntagmes.
+
+Dans notre travail, nous utiliserons donc le framework de traduction statistique (syntagmatique) \emph{Moses}, \cite{Koehn07}.
+
 \subsection{Moses}
-Nous utilisons le framework de traduction statistique ``syntagmatique'' \emph{Moses}, \cite{Koehn07}.
+\paragraph{}
+Nous devons dans un premier temps modifier les données, pour que Moses les considère comme des phrases. Pour cela il suffit d'insérer des espaces entre les lettres (chaque lettre est un mot). Pour empêcher tout réarrangement de mots (traduction monotone), nous mettons le paramètre \emph{distortion-limit} à la valeur $0$. Les résultats sont similaires, mais le temps d'exécution largement réduit.
 
-Nous devons cependant modifier les données, pour que Moses les considère comme des phrases. Pour cela il suffit d'insérer des espaces entre les lettres (chaque lettre est un mot). Pour empêcher tout réarrangement de mots (traduction monotone), nous mettons le paramètre \emph{distortion-limit} à la valeur $0$. Les résultats sont simililaires, mais le temps d'exécution largement réduit.
-
-
+\paragraph{}
 Nous nous sommes inspirés du travail de \cite{Matthews}, où la translittération de noms propres (du corpus \emph{Gigaword}) est effectuée, en utilisant Moses.
+
+\paragraph{}
+La création d'un système de traduction avec Moses se fait en plusieurs étapes (manuel d'utilisation, \cite{Moses}):
+\begin{itemize}
+    \item Utilisation d'\emph{IRSTLM} (ou autre) pour générer le modèle de langue à partir des données de la langue cible (les mots du russe ou du portugais dans notre cas);
+    \item Alignement des données avec \emph{Giza++};
+    \item Création du modèle de traduction.
+\end{itemize}
 
 \paragraph{Paramètres}
 
@@ -215,6 +237,8 @@ SPA-POR&56.9\%&1.21&4.30\\
     \includegraphics[scale=0.5]{moses_histogram.pdf}
 \end{center}
 \end{figure}
+
+Les résultats pour l'\emph{Espagnol-Portugais} sont moins bons qu'avec l'approche basée sur les règles de substitution. Les résultats avec l'\emph{Anglais-Russe} sont comparativement bons, compte tenu de la difficulté de translittération sur deux alphabets si différents.
 
 \section{CRF}
 Les CRF \emph{Conditionnal Random Fields} sont des modèles statisitques permettant de prendre plus de contexte qu'un classifieur "ordinaire". Ils permettent l'étiquettage de séquences. Ils ont été introduit par \cite{Lafferty01}. L'équation principale des CRF est donnée à l'équation \ref{eqcrf}.
