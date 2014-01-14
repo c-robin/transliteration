@@ -36,11 +36,8 @@ $MOSES_DIR/bin/build_binary translit_$LABEL.arpa.out \
 cd $CUR_DIR
 mkdir -p working
 cd working/
-$MOSES_DIR/scripts/training/train-model.perl -root-dir \
-    train_$LABEL -corpus ../output/translit_$LABEL -f input -e \
-    out -alignment grow-diag-final -reordering monotone --max-phrase-length 3 -lm \
-    0:3:$CUR_DIR/lm/translit_$LABEL.blm\.out:8 -external-bin-dir \
-    $GIZA_DIR >& training_$LABEL.out 
+rm -rf train_$LABEL
+$MOSES_DIR/scripts/training/train-model.perl -root-dir train_$LABEL -corpus ../output/translit_$LABEL -f input -e out -alignment grow-diag-final-and -reordering msd-bidirectional-fe --max-phrase-length 5 -lm 0:3:$CUR_DIR/lm/translit_$LABEL.blm.out:8 -external-bin-dir $GIZA_DIR >& training_$LABEL.out 
 fi
 
 # Evaluation step
@@ -55,4 +52,5 @@ MODEL=working/train_$LABEL/model/moses.ini
 #$MOSES_DIR/scripts/training/filter-model-given-input.pl $TEST_INPUT $MODEL $TEST_TRUTH
 
 $MOSES_DIR/bin/moses -f $MODEL -distortion-limit 0 < $TEST_INPUT > $TEST_OUTPUT
+./test.py $LABEL
 fi

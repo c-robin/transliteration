@@ -22,8 +22,9 @@ for model_tr, translations in zip(results, gt):
         #print(model_tr + ' // ' + translation)
         pass
 
+print(len(hist), total)
 precision = len([x for x in hist if x==0])/total
-mean = sum(x for x in hist)/total
+mean = sum(hist)/total
 variance = sum((x-mean)**2 for x in hist)/total 
 
 print(Counter(hist))
