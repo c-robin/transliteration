@@ -222,12 +222,12 @@ Les CRF \emph{Conditionnal Random Fields} sont des modèles statisitques permett
 p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
 \label{eqcrf}
 \end{equation}
-Les $f_k$ sont des fonctions \emph{feature} données par l'utilisateur nécéssiatant certains arguments, et les $\lambda_k$ sont des poids qui sont appris grâce aux données d'apprentissage, \textbf{s} et \textbf{o} étant respectivement une séquence d'état et la séquence des observations (ici les lettres). Les fonctions features sont des fonctions qui ont pour valeur 0 presque sur tout leur domaine et 1 sinon.
+Les $f_k$ sont des fonctions \emph{feature} données par l'utilisateur nécessitant certains arguments, et les $\lambda_k$ sont des poids qui sont appris grâce aux données d'apprentissage, \textbf{s} et \textbf{o} étant respectivement une séquence d'état et la séquence des observations (ici les lettres). Les fonctions features sont des fonctions qui ont pour valeur 0 sur presque tout leur domaine et 1 sinon.
 
 Nous avons utilisé dans le cadre de ce projet, l'implémentation CRF++\footnote{https://code.google.com/p/crfpp/}.
 
 \subsection{Apprentissage}
-Dans le cas de l'apprentissage des CRF, nous avons du en premier lieu aligner lettre à lettre les mots et leurs traductions dans l'ensemble d'apprentissage. Pour celà nous avons utilisé l'algorithme \emph{dpalign} dont une implémentation en perl est disponible sur le site du cours. Nous avons ensuite donner ces données à CRF++ en plus d'un fichier \emph{template} décrivant les fonctions features que nous souhaitons utiliser. Nous avons choisi comme fonctions features des unigrammes. Le contenu du fichier template est le suivant :
+Dans le cas de l'apprentissage des CRF, nous avons dû en premier lieu aligner lettre à lettre les mots et leurs traductions dans l'ensemble d'apprentissage. Pour celà nous avons utilisé l'algorithme \emph{dpalign} dont une implémentation en perl est disponible sur le site du cours. Nous avons ensuite donné ces données à CRF++ en plus d'un fichier \emph{template} décrivant les fonctions features que nous souhaitions utiliser. Nous avons choisi comme fonctions features des unigrammes. Le contenu du fichier template est le suivant :
 \begin{verbatim}
 # Unigram
 U0:%x[0,0]
