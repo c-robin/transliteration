@@ -9,8 +9,6 @@
 \usepackage{tikz}
 \usepackage{amsmath}
 
-
-
 \begin{document}
 \title{Données Séquentielles et Symboliques: Translittération automatique}
 
@@ -83,10 +81,11 @@ ido#->ídeo#
 \end{verbatim}
 La progression est flagrante, avec seulement trois règles. Cela nous a amené à penser qu'un système sélectionnant automatiquement des règles de substitution basiques, pourrait obtenir de très bons résultats.
 
-\paragraph{Application des règles}
+\subsection{Application des règles}
 Dans le fichier de règles, les règles sont listées par ordre de priorité. Lorsqu'un mot doit être traduit, on tente d'abord d'appliquer la première règle, puis la deuxième, etc.  L'application d'une règle est simplement la substitution dans le mot de toutes les occurences de la partie gauche de la règle par la partie droite de la règle. Afin d'éviter les incohérences, nous prenons soin de ne pas appliquer une règle sur une portion du mot qui a déjà été modifiée. Si la règle chevauche une partie modifiée par une autre règle déjà appliquée, elle est tout simplement ignorée.
 
-\paragraph{Apprentissage}
+\subsection{Apprentissage}
+\paragraph{Alignement}
 Pour l'apprentissage de règles, nous commençons par aligner toutes les données d'apprentissage. Comme les mots sont très similaires, nous utilisons une simple distance de Levenshtein: l'alignement est construit à partir de la séquence d'opérations qui minimise la distance d'édition\footnote{Il y a quatre types d'opérations: \emph{égal}, \emph{insertion}, \emph{suppression}, \emph{substitution}. Les lettres successives concernées par des opérations \emph{égal} sont regroupées. Et les trois autres types d'opérations sont regroupés. Dans l'exemple, la lettre 'i' subit une \emph{suppression}, et la lettre 's' une \emph{substitution} par 'e'. Dans le résultat, 'is' est aligné avec 'e'}.
 Un alignement se présente sous la forme suivante:
 \begin{verbatim}
@@ -99,17 +98,24 @@ D'un autre côté, si la règle \verb|catarsis -> catarse| est très fiable, son
 
 L'objectif est donc de produire des règles ayant un bon compromis entre \emph{fiabilité} (qui sera évaluée par un \emph{taux de confiance}), et généralisation (évaluée par la longueur de la règle, et son \emph{support}).
 
-La production des règles se fait donc en énumérant, pour chaque alignement dans le corpus d'apprentissage, la liste des candidats de partie gauche de règle. Pour l'exemple, les candidats sont \verb|['is', 'sis', 'is#', 'sis#', ...]|. Seuls les candidats de longueur supérieure au seuil $l$ sont conservés. Les candidats sont générés à partir des parties du mot dont l'alignement diffère, en étendant itérativement vers la droite et vers la gauche.
+\paragraph{Génération des candidats}
+La production des règles se fait donc en énumérant, pour chaque alignement dans le corpus d'apprentissage, la liste des candidats de partie gauche de règle. Dans le cas de l'exemple, la liste des candidats est: \verb|['is', 'sis', 'is#', 'sis#', ...]|. Seuls les candidats de longueur supérieure au seuil $l$ sont conservés. Les candidats sont générés à partir des parties du mot dont l'alignement diffère, en étendant itérativement vers la droite et vers la gauche.
 
+\paragraph{Calcul du support}
 On calcule ensuite le support de chacun de ces candidats sur l'ensemble des données (\verb|len([w for w in words if 'is' in w])|).
 Les candidats avec un support supérieur au seuil $s$ sont conservés. Cette étape permet de s'assurer que les règles sont suffisamment générales, et aussi de réduire le temps d'exécution (car l'étape suivante est beaucoup plus coûteuse).
 
+\paragraph{Taux de confiance}
 L'étape suivante est la génération de partie droite de règle. En parcourant l'ensemble de données, on calcule pour chaque candidat la partie droite de règle offrant le meilleur taux de confiance. Si ce taux de confiance est au-dessus du seuil $c$, alors la règle est conservée.
 
 Par exemple, la règle \verb|is -> e| est jugée incorrecte pour l'alignement suivant: \verb|[('#hist', '#hist'), ('o', 'ó'), ('ria#', 'ria#')]|. En effet, le motif \verb|'is'| y est traduit par \verb|'is'|, et non \verb|'e'|.
 De la même manière, pour l'alignement suivant: \verb|[('#imagina', '#imagina'), ('ción', 'ção'), ('#', '#')]|, la règle \verb|nac -> naç| est incorrecte, car incomplète. Le taux de confiance d'une règle est calculé en divisant le nombre de fois où la règle est jugée correcte, par le nombre total d'occurences de la partie gauche de la règle.
 
-\paragraph{Résultats}
+\paragraph{Tri des règles}
+La dernière étape est de trier les règles selon leur ordre de priorité. Les règles les plus spécifiques doivent être appliquées avant les règles générales (sinon elles ne pourront jamais être appliquées). Nous trions donc les règles par ordre de taille (décroissante), une règle ne pouvant pas être plus générale qu'une règle plus courte. En fonction de la valeur du paramètre $l$, cette approche peut donner \emph{+1\% à +2\%} en précision par rapport à un tri inversé.
+Une piste d'amélioration pourrait être de considérer leur taux de confiance dans l'ordre de tri des règles.
+
+\subsection{Résultats}
 Le score maximal que nous parvenons à atteindre avec ce système est de \emph{69.0\%}. Ces résultats sont sur le jeu de données \emph{Espagnol-Portugais}.
 \begin{center}
 \begin{tabular}{|l|c|c|}
@@ -151,19 +157,63 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \end{tabular}
 \end{center}
 
-\paragraph{Remarques}
-Cette approche est relativement rudimentaire, et pourrait bénéficier de certaines améliorations.
+Nous n'avons pas considéré l'utilisation de cette méthode sur les données \emph{Anglais-Russe}, car l'alphabet est complétement différent. L'hypothèse de similarité des mots dans les deux langages n'est donc plus vérifiée. D'autres méthodes sont plus adaptées, notamment les méthodes \emph{statistiques} (traduction statistique, CRF).
+
 
 \section{Translittération statistique}
-Le problème de la translittération est relativement proche de la traduction automatique. En traduction automatique, on traduit des séquences de mots d'un langage à un autre. Cela se caractérise par l'association à chaque mot (ou groupe de mots) de la phrase original, d'un mot (ou groupe de mots) dans le langage cible, avec un réordonnancement possible.
+Le problème de la translittération est relativement proche de la traduction automatique. En traduction automatique, on traduit des séquences de mots d'un langage à un autre. Cela se caractérise par l'association à chaque mot (ou groupe de mots) de la phrase original, d'un mot (ou groupe de mots) dans le langage cible, avec un réordonnancement possible. En translittération, on associe des lettres ou groupes de lettres.
 
 \begin{figure}[H]
-\caption{Alignement de mots en traduction, et alignment de lettres en translittération}
+\caption{Traduction et translittération}
 \centering
 \vspace{0.3cm}
 \includegraphics{word_alignment.pdf}
 \hspace{0.5cm}
 \includegraphics{letter_alignment.pdf}
+\end{figure}
+
+La différence essentielle, par rapport à la traduction automatique est l'absence de réarrangements dans le résultat. En effet, dans certaines paires de langages, les mots doivent être réordonnés (e.g. les adjectifs entre le français et l'anglais). Ce n'est pas le cas dans la translittération.
+
+\subsection{Moses}
+Nous utilisons le framework de traduction statistique ``syntagmatique'' \emph{Moses}, \cite{Koehn07}.
+
+Nous devons cependant modifier les données, pour que Moses les considère comme des phrases. Pour cela il suffit d'insérer des espaces entre les lettres (chaque lettre est un mot). Pour empêcher tout réarrangement de mots (traduction monotone), nous mettons le paramètre \emph{distortion-limit} à la valeur $0$. Les résultats sont simililaires, mais le temps d'exécution largement réduit.
+
+
+Nous nous sommes inspirés du travail de \cite{Matthews}, où la translittération de noms propres (du corpus \emph{Gigaword}) est effectuée, en utilisant Moses.
+
+\paragraph{Paramètres}
+
+Les paramètres d'apprentissage sont les suivants:
+\begin{itemize}
+    \item Ordre des N-grammes du modèle de langue;
+    \item Lissage du modèle de langue;
+    \item Réordonnement (monotone dans notre cas);
+    \item Longueur maximale des phrases;
+    \item Heuristique d'alignement.
+\end{itemize}
+
+Dans Moses, la probabilité finale d'une traduction est le produit de quatre probabilités: la probabilité du modèle de traduction syntagmatique, la probabilité du modèle de langue, le modèle de réordonnancement (qui n'est pas considéré dans notre cas), et finalement la pénalité de longueur. Les paramètres du modèle sont les poids attribués à ces différentes probabilités.
+
+\subsection{Résultats}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Données&Précision&Distance moyenne&Variance\\
+\hline
+ENG-RUS&59.1\%&2.10&15.41\\
+\hline
+SPA-POR&56.9\%&1.21&4.30\\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+\begin{center}
+    \caption{Histogramme des distances pour les données \emph{ENG-RUS}}
+    \includegraphics[scale=0.5]{moses_histogram.pdf}
+\end{center}
 \end{figure}
 
 \section{CRF}
@@ -176,7 +226,7 @@ Les $f_k$ sont des fonctions \emph{feature} données par l'utilisateur nécessit
 
 Nous avons utilisé dans le cadre de ce projet, l'implémentation CRF++\footnote{https://code.google.com/p/crfpp/}.
 
-\paragraph{Apprentissage}
+\subsection{Apprentissage}
 Dans le cas de l'apprentissage des CRF, nous avons dû en premier lieu aligner lettre à lettre les mots et leurs traductions dans l'ensemble d'apprentissage. Pour celà nous avons utilisé l'algorithme \emph{dpalign} dont une implémentation en perl est disponible sur le site du cours. Nous avons ensuite donné ces données à CRF++ en plus d'un fichier \emph{template} décrivant les fonctions features que nous souhaitions utiliser. Nous avons choisi comme fonctions features des unigrammes. Le contenu du fichier template est le suivant :
 \begin{verbatim}
 # Unigram
@@ -192,10 +242,10 @@ U6:%x[3,0]
 B
 \end{verbatim}
 
-\paragraph{Évaluation}
+\subsection{Évaluation}
 Nous testons ensuite le modèle CRF obtenu grace aux données de test, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long.
 
-\paragraph{Résultats}
+\subsection{Résultats}
 Un récapitualatif de nos résultats est disponible ci-dessous sur le jeu de données \emph{Espagnol-Portugais}. Nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre baseline ainsi qu'avec les trois règles de substitutions trouvées manuellement.
 \begin{center}
 \begin{tabular}{|l|c|c|}

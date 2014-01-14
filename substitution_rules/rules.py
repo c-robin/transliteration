@@ -161,6 +161,7 @@ if __name__ == '__main__':
     # Apply more specific rules before more general ones (order by length)
     rules = sorted(rules.items(), key=lambda x: len(x[0]), reverse=True)
     rules = [(l, r) for (l, (r, s, c)) in rules]
+    #random.shuffle(rules)
 
     for left, right in rules:
         output.write('%s->%s\n' % (left, right))
