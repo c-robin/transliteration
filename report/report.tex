@@ -19,14 +19,18 @@
 \vspace{0.5em}
 \section{Introduction}
 
-La translittération est le fait de remplacer chaque graphème d'un système d'écriture par graphème ou un groupe de graphèmes d'un autre système, indépendamment de la prononciation. La translittération peut être par exemple utilisée pour écrire un nom propre d'un alphabet dans un autre. 
+Il est très fréquent pour des traducteurs humains ou des systèmes de traduction automatique de devoir traduire des termes ne possèdant pas d'équivalent dans la langue cible, notamment des noms propres, noms de lieux ou des termes techniques.
+La translittération consiste en la conversion d'un texte d'un système d'écriture à un autre (par exemple de l'arabe vers l'anglais), en substituant des \emph{graphèmes} ou des \emph{phonèmes}.
 
-La translittération automatique est un domaine particulier de la translittération, qui va trouver des application par exemple pour traduire des mots qui ne sont pas encore dans les dictionnaires, ou traduire automatiquement des requêtes effectuées dans des systèmes d'écriture peu utilisés sur internet \cite{Singh2010}.
+Dans la littérature scientifique, deux types d'approches existent pour la translittération: les approches basées sur la prononciation, et celles basées sur l'écriture (\cite{OhChoi06}). Des méthodes mixtes existent également. Lorsque le système d'écriture est très différent (par exemple entre l'anglais et le japonais \cite{Knight98}), la prononciation est un approche intéressante.
 
+Nous ne disposons pas des ressources nécessaires pour travailler avec la transcription phonétique (par ex. des dictionnaires phonétiques), et nos données ne correspondent pas à des équivalents phonétiques (et appartiennent à des alphabets proches). Nous travaillons donc exclusivement sur l'écriture.
+
+
+Nous présentons trois méthodes différentes: une première méthode utilise des règles de substitution et se base sur l'hypothèse que les deux langages sont très similaires. La deuxième méthode est basée sur les techniques existantes de traduction statistique. Et enfin, nous proposons une méthode utilisant les \emph{Champs conditionnels aléatoires}.
 
 \subsection{Jeux de données}
-Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux jeux de données, concernant respectivement la translittération de l'\emph{espagnol} au \emph{portugais} et de l'\emph{anglais} vers le \emph{russe}. Chacun de ces jeux de données est divisé en deux fichiers, un fichier pour l'apprentissage et un fichier pour l'évaluation. Le fichier d'apprentissage contient plusieurs milliers d'entrées (3057 pour le portugais, et 7262 pour le russe), chaque entrée correspondant à un mot dans la langue originale et sa transcription dans le langage cible. Les entrées dans le fichier d'évaluation, elles, peuvent cependant contenir plusieurs transcriptions pour un même mot. 
-
+Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux jeux de données, concernant respectivement la translittération de l'\emph{espagnol} vers le \emph{portugais} (intitulé \emph{SPA-POR}) et de l'\emph{anglais} vers le \emph{russe} (intitulé \emph{ENG-RUS}). Chacun de ces jeux de données est divisé en deux fichiers, un fichier pour l'apprentissage et un fichier pour l'évaluation. Le fichier d'apprentissage contient plusieurs milliers d'entrées, chaque entrée correspondant à un mot dans la langue originale et sa transcription dans le langage cible. Les entrées dans le fichier d'évaluation, elles, peuvent cependant contenir plusieurs transcriptions pour un même mot. Les \emph{Tableaux \ref{table1} et \ref{table2}} présentent des statistiques plus détaillées sur les données.
 
 \begin{figure}[H]
 \caption{Entrées dans le fichier d'apprentissage Espagnol-Portugais}
@@ -44,9 +48,14 @@ Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux
 \end{verbatim}
 \end{figure}
 
+Ces deux jeux de données représentent deux problèmes bien différents. Dans les données \emph{Espagnol-Portugais}, l'alphabet est quasiment identique (à l'exception de quelques lettres accentuées), et les mots et leur traduction sont très similaires.
+Dans les données \emph{Anglais-Russe}, l'alphabet n'est pas le même (alphabet \emph{latin} et alphabet \emph{cyrillique}), et donc les mots sont très différents. De plus, comme l'atteste le \emph{Tableau \ref{table_len}}, les mots sont de longueur très différente. On s'attend donc à un niveau de difficulté supérieur pour ce jeu de données.
+
 
 \begin{table}[H]
-\caption{Longueur moyenne des mots dans chaque langue}
+\caption{Longueur moyenne des mots dans les données}
+\label{table_len}
+\label{table1}
 \begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
@@ -60,6 +69,20 @@ Portugais&11.52\\
 Anglais&12.27\\
 \hline
 Russe&11.64\\
+\hline
+\end{tabular}
+\end{center}
+
+\caption{Taille des données}
+\label{table2}
+\begin{center}
+    \begin{tabular}{|l|c|c|p{4cm}|}
+\hline
+Données&Apprentissage&Évaluation&Propositions par entrée dans le fichier d'évaluation\\
+\hline
+ENG-RUS&7262&1000&2.02\\
+\hline
+SPA-POR&3057&1000&1.79\\
 \hline
 \end{tabular}
 \end{center}
@@ -91,7 +114,7 @@ Ces deux métriques donnent un résumé acceptable des performances du système.
 
 \section{Règles de substitution}
 Nous avons observé que dans le cas de l'espagnol et le portugais, les mots sont très similaires dans les deux langages. Dans les données d'apprentissage, la distance d'édition moyenne entre un mot espagnol et sa transcription en portugais est de \emph{2.0}.
-Lorsque nous utilisons, comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons donc une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06} (au mot le plus similaire dans les candidats).
+Lorsque nous utilisons comme \emph{baseline} pour notre système de translittération, un système qui se contente de renvoyer le mot original, nous obtenons donc une précision de \emph{51.0\%} et une distance d'édition moyenne de \emph{1.06} (au mot le plus similaire dans les candidats).
 
 \paragraph{}
 Nous avons ensuite constaté qu'un système mettant en jeu les trois règles de substitution suivantes (que nous avons sélectionné manuellement), obtenait une précision de \emph{58.6\%}, et une distance d'édition moyenne de \emph{0.76}.
@@ -198,7 +221,7 @@ Le problème de la translittération est relativement proche de la traduction au
 \includegraphics{letter_alignment.pdf}
 \end{figure}
 
-La différence essentielle, par rapport à la traduction automatique est l'absence de réarrangements dans le résultat. En effet, dans certaines paires de langages, les mots doivent être réordonnés (e.g. les adjectifs entre le français et l'anglais). Ce n'est pas le cas dans la translittération.
+La différence essentielle, par rapport à la traduction automatique est l'absence de réarrangements dans le résultat. En effet, dans certaines paires de langages, les mots doivent être réordonnés (par ex. les adjectifs entre le français et l'anglais). Ce n'est pas le cas dans la translittération.
 
 \paragraph{Traduction statistique}
 L'approche de traduction automatique avec le plus de succès est la \emph{traduction statistique}. La traduction statistique se base sur la \emph{loi de Bayes}:
@@ -208,11 +231,11 @@ $e = arg max_{e \in e*} p(e|f) = arg max_{e \in e*} p(f|e)p(e)$
 Où $f$ est la phrase à traduire, $e*$ est l'ensemble des traductions possible, et $e$ la traduction choisie. La probabilité $p(e)$ est le \emph{modèle de langue}. Il s'agit de la probabilité d'observer la phrase $e$ dans la langue cible. $p(f|e)$ est le modèle de traduction et dépend de l'approche utilisée. Ces probabilités sont souvent estimées avec un \emph{maximum de vraissemblance} sur de larges corpus de textes alignés dans les deux langues.
 
 
-La traduction syntagmatique (ou \emph{phrase-based traduction}), considère des \emph{syntagmes} comme unité de langage (\cite{Koehn03}). Un syntagme (ou \emph{phrase}) est un groupe de mots constituant une unité syntaxique (par ex., ``are playing'' est un syntagme). Les anciennes approches basées sur les mots se heurtaient à certaines difficultés, notamment pour traduire les expressions (par ex. ``kick the bucket''/``casser sa pipe'').
+La traduction syntagmatique (ou \emph{phrase-based traduction}), considère des \emph{syntagmes} comme unité de langage (\cite{Koehn03}). Un syntagme (ou \emph{phrase}) est un groupe de mots constituant une unité syntaxique (par ex., ``are playing''). Les anciennes approches basées sur les mots se heurtaient à certaines difficultés, notamment pour traduire les expressions (par ex. ``kick the bucket''/``casser sa pipe'').
 
 Dans le cas de la translittération, l'approche syntagmatique est également très intéressante. Dans la \emph{Figure \ref{translation_alignment}}, ``sm'' et son équivalent russe sont des syntagmes.
 
-Dans notre travail, nous utiliserons donc le framework de traduction statistique (syntagmatique) \emph{Moses}, \cite{Koehn07}.
+Dans notre travail, nous utiliserons donc le \emph{framework} de traduction statistique (syntagmatique) \emph{Moses}, \cite{Koehn07}.
 
 \subsection{Moses}
 \paragraph{}
@@ -238,13 +261,14 @@ Les paramètres d'apprentissage sont les suivants:
     \item Longueur maximale des phrases (par défaut 20, 5 donne d'aussi bon résultats);
 \end{itemize}
 
-Dans Moses, la probabilité finale d'une traduction est le produit de quatre probabilités: la probabilité du modèle de traduction syntagmatique, la probabilité du modèle de langue, le modèle de réordonnancement (qui n'est pas considéré dans notre cas), et finalement la pénalité de longueur. Les paramètres du modèle sont les poids attribués à ces différentes probabilités.
+Dans Moses, la probabilité finale d'une traduction est le produit de quatre probabilités: la probabilité du modèle de traduction syntagmatique, la probabilité du modèle de langue, le modèle de réordonnancement (qui n'est pas considéré dans notre cas), et finalement la pénalité de longueur. Les paramètres du modèle sont les poids attribués à ces différentes probabilités. Les valeurs sélectionnées pour ces poids sont présentées dans le \emph{Tableau \ref{table_poids}}.
 
 \subsection{Résultats}
 
 \begin{table}[H]
 \begin{center}
-\caption{Valeurs optimales des poids}
+\caption{Valeur optimale des poids}
+\label{table_poids}
 \begin{tabular}{|l|c|c|c|}
 \hline
 Données&Pénalité de longueur&Modèle de langue&Modèle de traduction\\
@@ -262,6 +286,7 @@ Par défaut&-1&0.5&\verb|[0.2,0.2,0.2,0.2]|\\
 
 \begin{table}[H]
 \caption{Résultats de la baseline (paramètres par défaut)}
+\label{table_baseline_smt}
 \begin{center}
 \begin{tabular}{|l|c|c|c|}
 \hline
@@ -275,6 +300,7 @@ SPA-POR&56.9\%&1.21&4.30\\
 \end{center}
 
 \caption{Résultats avec paramètres optimaux}
+\label{table_opt_smt}
 \begin{center}
 \begin{tabular}{|l|c|c|c|}
 \hline
@@ -288,28 +314,34 @@ SPA-POR&\textbf{71.5\%}&\textbf{0.73}&3.46\\
 \end{center}
 \end{table}
 
+Nous évaluons les résultats de classification avec les valeurs par défaut du système (\emph{Tableau \ref{table_baseline_smt}}), et sur des valeurs plus optimales des paramètres (\emph{Tableau \ref{table_opt_smt}}). Les résultats obtenus après règlage sont très satisfaisant, puisque l'on obtient un score supérieur à celui obtenu par la méthode précédente pour l'\emph{Espagnol-Portugais} (+2.5 points). À noter cependant que cette méthode semble moins efficace si l'on considère la distance moyenne d'édition (0.73 contre 0.58).
+Le score de \emph{67.8\%} obtenu avec les données \emph{Anglais-Russe} est très encourageant, puisqu'il talonne de près le meilleur score sur les données \emph{Espagnol-Portugais}. En outre, la distance d'édition de \emph{1.75} est beaucoup moins bonne. Cette moyenne est cependant très tirée vers le haut par les valeurs extrêmes. Si l'on exclut 5\% des données, la moyenne descend à \emph{1.10} (\emph{1.55} pour 1\%). 
+Les histogrammes des \emph{Figures \ref{hist_1} et \ref{hist_2}} représentent mieux cette différence.
+
 \begin{figure}[H]
 \begin{center}
     \caption{Histogramme des distances pour les données \emph{ENG-RUS}}
-    \includegraphics[scale=0.5]{moses_histogram_rus.pdf}
+    \label{hist_1}
+    \includegraphics[scale=0.45]{moses_histogram_rus.pdf}
     
     \caption{Histogramme des distances pour les données \emph{SPA-POR}}
-    \includegraphics[scale=0.5]{moses_histogram_por.pdf}
+    \label{hist_2}
+    \includegraphics[scale=0.45]{moses_histogram_por.pdf}
 \end{center}
 \end{figure}
 
-\section{CRF}
-Les CRF \emph{Conditionnal Random Fields} sont des modèles statisitques permettant de prendre plus de contexte qu'un classifieur "ordinaire". Ils permettent l'étiquettage de séquences. Ils ont été introduit par \cite{Lafferty01}. L'équation principale des CRF est donnée à l'équation \ref{eqcrf}.
+\section{Champs conditionnels aléatoires}
+Les \emph{Champs conditionnels aléatoires} (CRF) sont des modèles statistiques permettant de prendre plus de contexte qu'un classifieur ordinaire. Ils permettent l'étiquettage de séquences. Ils ont été introduit par \cite{Lafferty01}. L'équation principale des CRF est donnée à l'équation \ref{eqcrf}.
 \begin{equation}
 p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
 \label{eqcrf}
 \end{equation}
-Les $f_k$ sont des fonctions \emph{feature} données par l'utilisateur nécessitant certains arguments, et les $\lambda_k$ sont des poids qui sont appris grâce aux données d'apprentissage, \textbf{s} et \textbf{o} étant respectivement une séquence d'état et la séquence des observations (ici les lettres). Les fonctions features sont des fonctions qui ont pour valeur 0 sur presque tout leur domaine et 1 sinon.
+Les $f_k$ sont des fonctions \emph{features} données par l'utilisateur nécessitant certains arguments, et les $\lambda_k$ sont des poids qui sont appris grâce aux données d'apprentissage, \textbf{s} et \textbf{o} étant respectivement une séquence d'état et la séquence des observations (ici les lettres). Les fonctions \emph{features} sont des fonctions qui ont pour valeur 0 sur presque tout leur domaine et 1 sinon.
 
-Nous avons utilisé dans le cadre de ce projet, l'implémentation CRF++\footnote{https://code.google.com/p/crfpp/}.
+Nous avons utilisé dans le cadre de ce projet, l'implémentation \emph{CRF++}\footnote{https://code.google.com/p/crfpp/}.
 
 \subsection{Apprentissage}
-Dans le cas de l'apprentissage des CRF, nous avons dû en premier lieu aligner lettre à lettre les mots et leurs traductions dans l'ensemble d'apprentissage. Pour celà nous avons utilisé l'algorithme \emph{dpalign} dont une implémentation en perl est disponible sur le site du cours. Nous avons ensuite donné ces données à CRF++ en plus d'un fichier \emph{template} décrivant les fonctions features que nous souhaitions utiliser. Nous avons choisi comme fonctions features des unigrammes. Le contenu du fichier template est le suivant :
+Dans le cas de l'apprentissage des CRF, nous avons dû en premier lieu aligner lettre à lettre les mots et leurs traductions dans l'ensemble d'apprentissage. Pour cela, nous avons utilisé l'algorithme \emph{dpalign} dont une implémentation en \emph{Perl} est disponible sur le site du cours \emph{DSS}. Nous avons ensuite donné ces données à CRF++ en plus d'un fichier \emph{template} décrivant les fonctions features que nous souhaitions utiliser. Nous avons choisi comme fonctions features des unigrammes. Le contenu du fichier \emph{template} est le suivant :
 \begin{verbatim}
 # Unigram
 U0:%x[0,0]
@@ -325,10 +357,13 @@ B
 \end{verbatim}
 
 \subsection{Évaluation}
-Nous testons ensuite le modèle CRF obtenu grace aux données de test, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long.
+Nous testons ensuite le modèle CRF obtenu grâce aux données d'évaluation, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long.
 
 \subsection{Résultats}
-Un récapitualatif de nos résultats est disponible ci-dessous sur le jeu de données \emph{Espagnol-Portugais}. Nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre baseline ainsi qu'avec les trois règles de substitutions trouvées manuellement.
+Un récapitualatif de nos résultats est disponible ci-dessous sur le jeu de données \emph{Espagnol-Portugais}. Nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre \emph{baseline} ainsi qu'avec les trois règles de substitutions trouvées manuellement.
+
+\begin{table}[H]
+    \caption{Comparaison des résultats pour les données \emph{SPA-POR}}
 \begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
@@ -342,6 +377,7 @@ CRF&\textbf{63.9\%}&\textbf{0.69}\\
 \hline
 \end{tabular}
 \end{center}
+\end{table}
 
 \section{Conclusion et perspectives}
 %\nocite{*}
