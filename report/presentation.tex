@@ -220,6 +220,7 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
     \frametitle{Traduction statistique}
     \begin{figure}[H]
         \label{translation_alignment}
+        \caption{Traduction et translittération}
         %\caption{Traduction et translittération}
         \centering
         \vspace{0.3cm}
@@ -227,6 +228,64 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
         \hspace{0.5cm}
         \includegraphics{letter_alignment.pdf}
     \end{figure}
+    \begin{block}{Loi de Bayes}
+    \begin{center}
+    $\displaystyle e = arg \max_{e \in e*} p(e|f) = arg \max_{e \in e*} p(f|e)p(e)$
+
+    \begin{itemize}
+        \item $e*$ est l'ensemble des traductions possibles
+        \item $p(e)$ est le modèle de langue
+        \item $p(f|e)$ est le modèle de traduction
+    \end{itemize}
+    \end{center}
+    \end{block}
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Framework Moses}
+    Framework de traduction statistique ``syntagmatique''. Traduction de groupes de mots (par ex. ``are playing''/``jouent'').
+
+    Utilisation de \emph{Giza++} pour l'alignement de mots, d'\emph{IRSTLM} pour le modèle de langue.
+
+    \begin{block}{Pré-traitement des données}
+        Insertion d'espaces entre les lettres (\verb|c a t a r s i s|)
+    \end{block}
+    \begin{block}{Paramètres}
+        \begin{itemize}
+            \item Poids des modèles (langage, traduction, pénalité de longueur, et réordonnancement)
+            \item Longueur des syntagmes
+            \item Ordre des n-grammes
+        \end{itemize}
+    \end{block}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Résultats}
+\begin{table}[H]
+\caption{Résultats de la baseline (paramètres par défaut)}
+\label{table_baseline_smt}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Données&Précision&Distance moyenne&Variance\\
+\hline
+ENG-RUS&59.1\%&2.10&15.41\\
+\hline
+SPA-POR&56.9\%&1.21&4.30\\
+\hline
+\end{tabular}
+
+\caption{Résultats avec paramètres optimaux}
+\label{table_opt_smt}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Données&Précision&Distance moyenne&Variance\\
+\hline
+ENG-RUS&\textbf{67.8\%}&\textbf{1.75}&14.47\\
+\hline
+SPA-POR&\textbf{71.5\%}&\textbf{0.73}&3.46\\
+\hline
+\end{tabular}
+\end{table}
 \end{frame}
 
 \subsection{CRF}
