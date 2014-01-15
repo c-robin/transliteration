@@ -3,6 +3,7 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{amsmath}
 \usetheme{Copenhagen}
 \setbeamertemplate{navigation symbols}{}
 %\title[Translittération automatique]{Données Séquentielles et Symboliques: Translittération automatique}
@@ -92,10 +93,8 @@
 	\end{block}
 \end{frame}
 
-\section{Règles de substitution}
-\begin{frame}
-\tableofcontents[currentsection]
-\end{frame}
+\section{Translittération}
+\subsection{Règles de substitution}
 \begin{frame}[fragile]
 	\frametitle{Espagnol - Portugais}
 
@@ -183,7 +182,7 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \normalsize
 \end{frame}
 
-\section{Traduction statistique}
+\subsection{Traduction statistique}
 \begin{frame}
 \tableofcontents[currentsection]
 \end{frame}
@@ -200,9 +199,78 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
     \end{figure}
 \end{frame}
 
-\section{CRF}
+\subsection{CRF}
+
 \begin{frame}
-\tableofcontents[currentsection]
+\frametitle{Présentation}
+\begin{block}{Équation principale des CRF}
+\begin{equation}
+p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
+\label{eqcrf}
+\end{equation}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{CRF}
+	\begin{block}{Méthode}
+		\begin{itemize}
+		\item Alignement grâce à dpalign
+		\item Utilisation de CRF++ :
+		{\scriptsize \begin{verbatim}
+		# Unigram
+		U0:%x[0,0]
+		U1:%x[-1,0]
+		U2:%x[1,0]
+		U3:%x[-2,0]
+		U4:%x[2,0]
+		U5:%x[-3,0]
+		U6:%x[3,0]
+		# Bigram
+		B
+		\end{verbatim}}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Résultats}
+\begin{block}{Métriques}
+\begin{center}
+\begin{table}[H]
+\caption{Résultats pour le jeu de données \emph{Espagnol-Portugais} }
+\begin{tabular}{|l|c|c|}
+\hline
+Règles&Précision&Distance d'édition\\
+\hline
+Baseline&51.0\%&1.06\\
+\hline
+3 subst.&58.6\%&0.76\\
+\hline
+CRF&\textbf{63.9\%}&\textbf{0.69}\\
+\hline
+\end{tabular}
+\end{table}
+\end{center}
+\end{block}
+
+\begin{block}{Résultats}
+\begin{center}
+\begin{table}[H]
+\caption{Résultats pour le jeu de données \emph{Anglais-Russe} }
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Précision&Distance d'édition\\
+\hline
+49.8\%&1.61\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+\end{center}
+\end{block}
+
 \end{frame}
 
 \section{Conclusion}

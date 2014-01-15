@@ -22,7 +22,7 @@
 Il est très fréquent pour des traducteurs humains ou des systèmes de traduction automatique de devoir traduire des termes ne possèdant pas d'équivalent dans la langue cible, notamment des noms propres, noms de lieux ou des termes techniques.
 La translittération consiste en la conversion d'un texte d'un système d'écriture à un autre (par exemple de l'arabe vers l'anglais), en substituant des \emph{graphèmes} ou des \emph{phonèmes}.
 
-Dans la littérature scientifique, deux types d'approches existent pour la translittération: les approches basées sur la prononciation, et celles basées sur l'écriture (\cite{OhChoi06}). Des méthodes mixtes existent également. Lorsque le système d'écriture est très différent (par exemple entre l'anglais et le japonais \cite{Knight98}), la prononciation est un approche intéressante.
+Dans la littérature scientifique, deux types d'approches existent pour la translittération: les approches basées sur la prononciation, et celles basées sur l'écriture (\cite{OhChoi06}). Des méthodes mixtes existent également. Lorsque le système d'écriture est très différent (par exemple entre l'anglais et le japonais \cite{Knight98}), la prononciation est une approche intéressante.
 
 Nous ne disposons pas des ressources nécessaires pour travailler avec la transcription phonétique (par ex. des dictionnaires phonétiques), et nos données ne correspondent pas à des équivalents phonétiques (et appartiennent à des alphabets proches). Nous travaillons donc exclusivement sur l'écriture.
 
@@ -356,13 +356,13 @@ B
 \end{verbatim}
 
 \subsection{Évaluation}
-Nous testons ensuite le modèle CRF obtenu grâce aux données d'évaluation, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long.
+Nous testons ensuite le modèle CRF obtenu grâce aux données d'évaluation, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes.
 
 \subsection{Résultats}
-Un récapitualatif de nos résultats est disponible ci-dessous sur le jeu de données \emph{Espagnol-Portugais}. Nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre \emph{baseline} ainsi qu'avec les trois règles de substitutions trouvées manuellement.
+Un récapitualatif de nos résultats est disponible ci-dessous. Pour le jeu de données \emph{Espagnol-Portugais}, nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre baseline ainsi qu'avec les trois règles de substitutions trouvées manuellement. Pour le jeu de données \emph{Anglais-Russe}, le taux de précision chute rapidement. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long. Cependant, on remarque que la distance moyenne est inférieure que pour la translitteration statistique. Cela signifie que les CRF se trompent plus souvent, mais les mots traduits sont plus proches de la vérité-terrain.
 
 \begin{table}[H]
-    \caption{Comparaison des résultats pour les données \emph{SPA-POR}}
+\caption{Résultats pour le jeu de données \emph{Espagnol-Portugais} }
 \begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
@@ -377,6 +377,21 @@ CRF&\textbf{63.9\%}&\textbf{0.69}\\
 \end{tabular}
 \end{center}
 \end{table}
+
+
+\begin{table}[H]
+\caption{Résultats pour le jeu de données \emph{Anglais-Russe} }
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Précision&Distance d'édition\\
+\hline
+49.8\%&1.61\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
 
 \section{Conclusion et perspectives}
 Bien que les résultats soient encourageant, 

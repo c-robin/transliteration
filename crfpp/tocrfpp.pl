@@ -24,7 +24,7 @@ while(<INPUT>) {
 		for($i=0;$i<length($strings[0]);$i++){
 
 			#On vérifie si Le fichier est un ensemble d'entrainement ou de test, traitement différent, car les fichiers de test contiennet des ... OR ...
-			if (index($ARGV[1], "train") != -1) {
+			if (index($ARGV[0], "train") != -1) {
 				print OUTPUT substr($strings[0],$i,1)." ".substr($strings[1],$i,1)."\n";
 			}
 			else{
