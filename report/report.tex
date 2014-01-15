@@ -26,21 +26,20 @@ Dans la littérature scientifique, deux types d'approches existent pour la trans
 
 Nous ne disposons pas des ressources nécessaires pour travailler avec la transcription phonétique (par ex. des dictionnaires phonétiques), et nos données ne correspondent pas à des équivalents phonétiques (et appartiennent à des alphabets proches). Nous travaillons donc exclusivement sur l'écriture.
 
-
-Nous présentons trois méthodes différentes: une première méthode utilise des règles de substitution et se base sur l'hypothèse que les deux langages sont très similaires. La deuxième méthode est basée sur les techniques existantes de traduction statistique. Et enfin, nous proposons une méthode utilisant les \emph{Champs conditionnels aléatoires}.
+Nous présentons trois méthodes différentes: une première méthode utilise des \emph{règles de substitution} et se base sur l'hypothèse que les deux langages sont très similaires. La deuxième méthode est basée sur les techniques existantes de \emph{traduction statistique}. Et enfin, nous proposons une méthode utilisant les \emph{champs conditionnels aléatoires}.
 
 \subsection{Jeux de données}
 Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux jeux de données, concernant respectivement la translittération de l'\emph{espagnol} vers le \emph{portugais} (intitulé \emph{SPA-POR}) et de l'\emph{anglais} vers le \emph{russe} (intitulé \emph{ENG-RUS}). Chacun de ces jeux de données est divisé en deux fichiers, un fichier pour l'apprentissage et un fichier pour l'évaluation. Le fichier d'apprentissage contient plusieurs milliers d'entrées, chaque entrée correspondant à un mot dans la langue originale et sa transcription dans le langage cible. Les entrées dans le fichier d'évaluation, elles, peuvent cependant contenir plusieurs transcriptions pour un même mot. Les \emph{Tableaux \ref{table1} et \ref{table2}} présentent des statistiques plus détaillées sur les données.
 
 \begin{figure}[H]
-\caption{Entrées dans le fichier d'apprentissage Espagnol-Portugais}
+    \caption{Entrées dans le fichier d'apprentissage \emph{SPA-POR}}
 \begin{verbatim}
 2996: #fotocopiado# #fotocópia#
 2997: #hexanoles# #hexanóis#
 2998: #catalasa# #catalase#
 \end{verbatim}
 
-\caption{Entrées dans le fichier d'évaluation Espagnol-Portugais}
+\caption{Entrées dans le fichier d'évaluation \emph{SPA-POR}}
 \begin{verbatim}
 182: #centrifugación# #centrifugação#	other	unknown
 183: #centriolo# #centríolo# OR #centríolos#	other	unknown
@@ -380,6 +379,8 @@ CRF&\textbf{63.9\%}&\textbf{0.69}\\
 \end{table}
 
 \section{Conclusion et perspectives}
+Bien que les résultats soient encourageant, 
+
 %\nocite{*}
 \bibliographystyle{apalike}
 \bibliography{report}
