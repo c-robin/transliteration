@@ -14,9 +14,9 @@
 
 \author{Alexandre Bérard, Mathias Millet, Charles Robin}
 \maketitle
-\begin{abstract}
-\end{abstract}
-\vspace{0.5em}
+%\begin{abstract}
+%\end{abstract}
+%\vspace{0.5em}
 \section{Introduction}
 
 Il est très fréquent pour des traducteurs humains ou des systèmes de traduction automatique de devoir traduire des termes ne possèdant pas d'équivalent dans la langue cible, notamment des noms propres, noms de lieux ou des termes techniques.
@@ -49,7 +49,6 @@ Les données nous ont été fournies par Vincent Claveau. Nous disposons de deux
 
 Ces deux jeux de données représentent deux problèmes bien différents. Dans les données \emph{Espagnol-Portugais}, l'alphabet est quasiment identique (à l'exception de quelques lettres accentuées), et les mots et leur traduction sont très similaires.
 Dans les données \emph{Anglais-Russe}, l'alphabet n'est pas le même (alphabet \emph{latin} et alphabet \emph{cyrillique}), et donc les mots sont très différents. De plus, comme l'atteste le \emph{Tableau \ref{table_len}}, les mots sont de longueur très différente. On s'attend donc à un niveau de difficulté supérieur pour ce jeu de données.
-
 
 \begin{table}[H]
 \caption{Longueur moyenne des mots dans les données}
@@ -87,7 +86,6 @@ SPA-POR&3057&1000&1.79\\
 \end{center}
 
 \end{table}
-
 
 \subsection{Processus d'évaluation}
 \label{eval}
@@ -207,7 +205,6 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \end{table}
 
 Nous n'avons pas considéré l'utilisation de cette méthode sur les données \emph{Anglais-Russe}, car l'alphabet est complétement différent. L'hypothèse de similarité des mots dans les deux langages n'est donc plus vérifiée. D'autres méthodes sont plus adaptées, notamment les méthodes \emph{statistiques} (traduction statistique, CRF).
-
 
 \section{Translittération statistique}
 Le problème de la translittération est relativement proche de la traduction automatique. En traduction automatique, on traduit des séquences de mots d'un langage à un autre. Cela se caractérise par l'association à chaque mot (ou groupe de mots) de la phrase original, d'un mot (ou groupe de mots) dans le langage cible, avec un réordonnancement possible. En translittération, on associe des lettres ou groupes de lettres.
@@ -380,7 +377,6 @@ CRF&\textbf{63.9\%}&\textbf{0.69}\\
 \end{center}
 \end{table}
 
-
 \begin{table}[H]
 \caption{Résultats pour le jeu de données \emph{Anglais-Russe} }
 \begin{center}
@@ -394,9 +390,14 @@ Précision&Distance d'édition\\
 \end{center}
 \end{table}
 
-
 \section{Conclusion et perspectives}
-Bien que les résultats soient encourageant, 
+Chaque méthode présente des avantages et des inconvénients. Les règles de substitution offrent de bons résultats sur les données \emph{Espagnol-Portugais}, mais cette méthode se base sur une hypothèse forte, si bien qu'elle est peu générale.
+
+Une grande marge d'amélioration existe, notamment au niveau du réglage des paramètres. Pour la traduction statistique, nous avons réglé les paramètres relativement finement. Pour les CRF cependant, le temps d'exécution étant très important, les paramètres ont été laissé à leur valeur initiale. Pour les règles de substitution, l'ordre d'application actuel des règles se base uniquement sur leur longueur. Une méthode tenant compte de leur taux de confiance et de leur support serait une ajout intéressant. 
+
+Nous avons constaté un fort niveau de bruit dans les données, que nous pourrions chercher à filtrer (par exemple en comparant la prononciation). Cela permettrait d'améliorer le modèle, et aussi d'obtenir une évaluation moins baisée.
+
+Nous n'avons pas du tout abordé le problème de \emph{translittération inverse}, c'est à dire rechercher le mot original à partir d'un mot translittéré. Une perspective future serait d'évaluer nos méthodes sur ce problème. Il serait également intéressant d'évaluer ces méthodes sur des données où l'alphabet cible est très différent de l'alphabet source (par ex. anglais vers arabe).
 
 %\nocite{*}
 \bibliographystyle{apalike}
