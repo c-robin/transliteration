@@ -1,6 +1,6 @@
 \documentclass{beamer}
  
-\usepackage[french]{babel}
+\usepackage[russian, french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
@@ -52,6 +52,8 @@
 \end{frame}
 
 \subsection{Le projet}
+
+
 \begin{frame}
 \frametitle{Introduction: le projet}
 %\framesubtitle{Le projet}
@@ -74,6 +76,20 @@
 
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Introduction: le projet : exemples}
+\begin{block}{ENG-RUS}
+\foreignlanguage{russian}{
+\texttt{\#vitellin\# \#вителлин\# OR \#вителлины\#	other unknown}\\
+\texttt{\#telephone\# \#телефон\# other unknown} }
+\end{block}
+\begin{block}{SPA-POR}
+\texttt{\#teléfono\# \#telefone\#	other	unknown}\\
+\texttt{\#thermosphaera\# \#thermosphaera\#	other	unknown}
+\end{block}
+\end{frame}
+
+
 \subsection{Méthodologie}
 
 \begin{frame}
@@ -91,10 +107,24 @@
             \item Distance de Levenshtein
 		\end{itemize}		
 	\end{block}
+	
+	\begin{alertblock}{}
+	$\Longrightarrow$ Ces métriques seront utilisées tout au long du projet.
+	\end{alertblock}	
+	
 \end{frame}
 
 \section{Translittération}
-\subsection{Règles de substitution}
+
+
+\begin{frame}
+\tableofcontents[currentsection, hideothersubsections]
+\end{frame}
+
+
+
+\subsection{Translittération par règles de substitution}
+
 \begin{frame}[fragile]
 	\frametitle{Espagnol - Portugais}
 
@@ -271,7 +301,7 @@ p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{CRF}
+\frametitle{Champs conditonnels aléatoires}
 	\begin{block}{Méthode}
 		\begin{itemize}
 		\item Alignement grâce à dpalign
@@ -294,7 +324,7 @@ p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...
 
 \begin{frame}
 \frametitle{Résultats}
-\begin{block}{Métriques}
+\begin{block}{Résultats}
 \begin{center}
 \begin{table}[H]
 \caption{Résultats pour le jeu de données \emph{Espagnol-Portugais} }
@@ -334,9 +364,9 @@ Précision&Distance d'édition\\
 
 \section{Conclusion}
 \begin{frame}
-\tableofcontents[currentsection]
+\tableofcontents[currentsection, hideothersubsections]
 \end{frame}
-\begin{frame}
+\begin{frame}[allowframebreaks]
     \frametitle{Bibliography}
     {\fontsize{0.8em}{1em}
     \nocite{*}
