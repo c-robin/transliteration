@@ -3,7 +3,7 @@ from utils import *
 from pprint import pprint
 
 SPA_TRAIN = 'predicted.txt'
-SPA_TEST = '../translit_SPA-POR.test_set'
+SPA_TEST = '../translit_ENG-RUS.test_set'
 
 training_data = data_one(SPA_TRAIN)
 test_data = data(SPA_TEST, True)

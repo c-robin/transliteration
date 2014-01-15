@@ -59,8 +59,8 @@
 	\begin{block}{Le but}
 		Implémenter des techniques de translitération 
 		\begin{itemize}
-		\item Entre l'espagnol et le portugais
-		\item Entre l'anglais et le russe
+		\item De l'espagnol vers le portugais
+		\item De l'anglais vers le russe
 		\end{itemize}
 	\end{block}
 
@@ -199,39 +199,52 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \end{center}
 \end{frame}
 
-\section{CRF}
+\subsection{Translittération statistique}
+
+\begin{frame}
+	\frametitle{Translittération statistique}
+\end{frame}
+
+\subsection{CRF}
 
 \begin{frame}
 \frametitle{Présentation}
-Équation principale des CRF:
+\begin{block}{Équation principale des CRF}
 \begin{equation}
 p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
 \label{eqcrf}
 \end{equation}
+\end{block}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Fonctions features}
-\begin{verbatim}
-# Unigram
-U0:%x[0,0]
-U1:%x[-1,0]
-U2:%x[1,0]
-U3:%x[-2,0]
-U4:%x[2,0]
-U5:%x[-3,0]	
-U6:%x[3,0]
-
-# Bigram
-B
-\end{verbatim}
+\frametitle{CRF}
+	\begin{block}{Méthode}
+		\begin{itemize}
+		\item Alignement gr\^ace à dpalign
+		\item Utilisation de CRF++ :
+		{\scriptsize \begin{verbatim}
+		# Unigram
+		U0:%x[0,0]
+		U1:%x[-1,0]
+		U2:%x[1,0]
+		U3:%x[-2,0]
+		U4:%x[2,0]
+		U5:%x[-3,0]
+		U6:%x[3,0]
+		# Bigram
+		B
+		\end{verbatim}}
+		\end{itemize}
+	\end{block}
 \end{frame}
 
 \begin{frame}
 \frametitle{Résultats}
+\begin{block}{Métriques}
+\begin{center}
 \begin{table}[H]
 \caption{Résultats pour le jeu de données \emph{Espagnol-Portugais} }
-\begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
 Règles&Précision&Distance d'édition\\
@@ -243,10 +256,12 @@ Baseline&51.0\%&1.06\\
 CRF&\textbf{63.9\%}&\textbf{0.69}\\
 \hline
 \end{tabular}
-\end{center}
 \end{table}
+\end{center}
+\end{block}
 
-
+\begin{block}{Résultats}
+\begin{center}
 \begin{table}[H]
 \caption{Résultats pour le jeu de données \emph{Anglais-Russe} }
 \begin{center}
@@ -259,7 +274,24 @@ Précision&Distance d'édition\\
 \end{tabular}
 \end{center}
 \end{table}
+\end{center}
+\end{block}
+
 \end{frame}
+
+
+\section{Conclusion}
+
+
+\begin{frame}
+    \frametitle{Overview}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    \url{https://code.google.com/p/transliteration}
+\end{frame}
+
 
 \begin{frame}
     \frametitle{Bibliography}
@@ -267,16 +299,6 @@ Précision&Distance d'édition\\
     \nocite{*}
     \bibliographystyle{plain}
     \bibliography{report}}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Overview}
-\end{frame}
-
-\section{Conclusion}
-\begin{frame}
-    \frametitle{Conclusion}
-    \url{https://code.google.com/p/transliteration}
 \end{frame}
 
 \end{document}
