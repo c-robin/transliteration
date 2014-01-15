@@ -58,8 +58,8 @@
 	\begin{block}{Le but}
 		Implémenter des techniques de translitération 
 		\begin{itemize}
-		\item Entre l'espagnol et le portugais
-		\item Entre l'anglais et le russe
+		\item De l'espagnol vers le portugais
+		\item De l'anglais vers le russe
 		\end{itemize}
 	\end{block}
 
@@ -198,9 +198,78 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \end{center}
 \end{frame}
 
-\section{CRF}
+\subsection{Translittération statistique}
+
+\begin{frame}
+	\frametitle{Translittération statistique}
+	
+	
+	
+\end{frame}
 
 
+\subsection{CRF}
+
+\begin{frame}[fragile]
+\frametitle{CRF}
+
+	\begin{block}{Méthode}
+		\begin{itemize}
+		\item Alignement gr\^ace à dpalign
+		\item Utilisation de CRF++ :
+		{\scriptsize \begin{verbatim}
+		# Unigram
+U0:%x[0,0]
+U1:%x[-1,0]
+U2:%x[1,0]
+U3:%x[-2,0]
+U4:%x[2,0]
+U5:%x[-3,0]
+U6:%x[3,0]
+# Bigram
+B
+		\end{verbatim}}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{CRF}
+
+\begin{block}{Métriques}
+Les m\^emes que pour la substitution
+\end{block}
+
+\begin{block}{Résultats}
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+Règles&Précision&Distance d'édition\\
+\hline
+Baseline&51.0\%&1.06\\
+\hline
+3 subst.&58.6\%&0.76\\
+\hline
+CRF&\textbf{63.9\%}&\textbf{0.69}\\
+\hline
+\end{tabular}
+\end{center}
+\end{block}
+
+\end{frame}
+
+
+\section{Conclusion}
+
+
+\begin{frame}
+    \frametitle{Overview}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    \url{https://code.google.com/p/transliteration}
+\end{frame}
 
 
 \begin{frame}
@@ -209,16 +278,6 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
     \nocite{*}
     \bibliographystyle{plain}
     \bibliography{report}}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Overview}
-\end{frame}
-
-\section{Conclusion}
-\begin{frame}
-    \frametitle{Conclusion}
-    \url{https://code.google.com/p/transliteration}
 \end{frame}
 
 \end{document}
