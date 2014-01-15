@@ -89,7 +89,6 @@
 \end{block}
 \end{frame}
 
-
 \subsection{Méthodologie}
 
 \begin{frame}
@@ -104,7 +103,7 @@
 	Deux métriques:
 		\begin{itemize}
             \item Précision
-            \item Distance de Levenshtein
+            \item Moyenne de la distance d'édition (Levenshtein)
 		\end{itemize}		
 	\end{block}
 	
@@ -116,14 +115,9 @@
 
 \section{Translittération}
 
-
 \begin{frame}
 \tableofcontents[currentsection, hideothersubsections]
 \end{frame}
-
-
-
-
 
 \subsection{Translittération par règles de substitution}
 
@@ -132,13 +126,13 @@
 
 	\begin{block}{Premières considérations}
 		\begin{itemize}
-		\item Les deux langues sont très proches (51\% de précision sans rien faire)
-		\item En appliquant les trois règles suivantes : {\scriptsize \begin{verbatim}
+		\item Les deux langues sont très proches (51\% de précision, distance de 1.06 sans rien faire)
+		\item En appliquant les trois règles suivantes: {\scriptsize \begin{verbatim}
 			is#->e#
 			ción#->ção#
 			ido#->ídeo#
 			\end{verbatim}}
-			nous obtenons 57\% de précision
+            Nous obtenons 58.6\% de précision (distance de 0.76)
 		\end{itemize}
 	\end{block}
 
@@ -147,21 +141,21 @@
 	\end{alertblock}
 \end{frame}
 
-\begin{frame}
-	\frametitle{Apprentissage}
-
-	\begin{block}{Objectif}
-	Trouver un compromis entre :
-		\begin{itemize}
-		\item Fiabilité : la règle ne conduit pas à de fausses translittérations
-		\item Généralisation : la règle peut s'appliquer à beaucoup de mots
-		\end{itemize}			
-	\end{block}
-
-	\begin{alertblock}{}
-	$\Longrightarrow$ Nous allons essayer de générer de règles en prenant ces deux paramètres en compte
-	\end{alertblock}
-\end{frame}
+%\begin{frame}
+%	\frametitle{Apprentissage}
+%
+%	\begin{block}{Objectif}
+%	Trouver un compromis entre :
+%		\begin{itemize}
+%		\item Fiabilité : la règle ne conduit pas à de fausses translittérations
+%		\item Généralisation : la règle peut s'appliquer à beaucoup de mots
+%		\end{itemize}			
+%	\end{block}
+%
+%	\begin{alertblock}{}
+%	$\Longrightarrow$ Nous allons essayer de générer de règles en prenant ces deux paramètres en compte
+%	\end{alertblock}
+%\end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Apprentissage}
@@ -214,16 +208,11 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \normalsize
 \end{frame}
 
-
-
-
 \subsection{Traduction statistique}
-
 
 \begin{frame}
 \tableofcontents[sectionstyle=show/shaded, subsectionstyle=show/shaded/hide] 
 \end{frame}
-
 
 \begin{frame}
     \frametitle{Traduction statistique}
@@ -328,8 +317,8 @@ SPA-POR&\textbf{71.5\%}&\textbf{0.73}&3.46\\
 \frametitle{Champs conditonnels aléatoires}
 	\begin{block}{Méthode}
 		\begin{itemize}
-		\item Alignement grâce à dpalign
-		\item Utilisation de CRF++ :
+            \item Alignement grâce à \emph{dpalign}
+            \item Utilisation de \emph{CRF++}:
 		{\scriptsize \begin{verbatim}
 		# Unigram
 		U0:%x[0,0]
