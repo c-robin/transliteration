@@ -103,9 +103,11 @@ Aussi, pour notre système de translittération nous utiliserons une distance de
 
 Dans les données de test, les mots peuvent posséder plusieurs transcriptions acceptables. Dans ce cas, on mesure la distance au mot le plus similaire à la proposition du système.
 
-$d(x,y) = \min_{y' \in traductions(x)} \{\delta(y,y')\}$
+\begin{center}
+$\displaystyle d(x,y) = \min_{y' \in traductions(x)} \{\delta(y,y')\}$
 
 où $\delta(y,y')=levenshtein(y,y')$
+\end{center}
 
 Pour la précision, nous jugeons que la transcription est correcte si elle est égale à une des transcriptions possible.
 
@@ -225,7 +227,7 @@ La différence essentielle, par rapport à la traduction automatique est l'absen
 \paragraph{Traduction statistique}
 L'approche de traduction automatique avec le plus de succès est la \emph{traduction statistique}. La traduction statistique se base sur la \emph{loi de Bayes}:
 \begin{center}
-$e = arg max_{e \in e*} p(e|f) = arg max_{e \in e*} p(f|e)p(e)$
+$\displaystyle e = arg \max_{e \in e*} p(e|f) = arg \max_{e \in e*} p(f|e)p(e)$
 \end{center}
 Où $f$ est la phrase à traduire, $e*$ est l'ensemble des traductions possible, et $e$ la traduction choisie. La probabilité $p(e)$ est le \emph{modèle de langue}. Il s'agit de la probabilité d'observer la phrase $e$ dans la langue cible. $p(f|e)$ est le modèle de traduction et dépend de l'approche utilisée. Ces probabilités sont souvent estimées avec un \emph{maximum de vraissemblance} sur de larges corpus de textes alignés dans les deux langues.
 
