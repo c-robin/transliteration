@@ -1,13 +1,13 @@
 \documentclass{beamer}
  
-\usepackage[american]{babel}
+\usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usetheme{Copenhagen}
 \setbeamertemplate{navigation symbols}{}
 %\title[Translittération automatique]{Données Séquentielles et Symboliques: Translittération automatique}
-\title[Machine Transliteration]{Sequential Symbolic Data: Machine Transliteration}
+\title[Translittération automatique]{Données Séquentielles Symboliques: Translittération automatique}
 \author[A.~Bérard, M.~Millet, C.~Robin]{Alexandre Bérard, Mathias Millet, Charles Robin}
 
 \date{January 10th, 2014}
@@ -24,76 +24,73 @@
 \titlepage
 \end{frame}
 
-\begin{frame}{Outline}
+\begin{frame}{Sommaire}
   \tableofcontents
 \end{frame}
 
 \section{Introduction}   
  
+\subsection{Translittération}
 \begin{frame}
-    \frametitle{Introduction}
-	\framesubtitle{Translitération}
+    \frametitle{Introduction: Translittération}
+	%\framesubtitle{Translittération}
 	\begin{block}{Definition}
-	    Remplacement d'un graphème d'un système d'écriture par un ou plusieurs graphèmes d'un autre système d'écriture
+	%Remplacement d'un graphème d'un système d'écriture par un ou plusieurs graphèmes d'un autre système d'écriture
+        Conversion de texte d'un système d'écriture à un autre, en substitutant des \emph{graphèmes} ou des \emph{phonèmes}.
     \end{block}	    
     
-	\begin{exampleblock}{Examples : anglais - hindi}
+	\begin{exampleblock}{Exemple: anglais - hindi}
 	\includegraphics[scale=0.2]{en-in-example}
     \end{exampleblock}
     
 	\begin{block}{Pourquoi ?}
 	\begin{itemize}
-		\item Traduction automatique de termes techniques
-		\item Traduction automatique de requ\^etes
+		\item Traduction automatique de termes techniques, noms propres, ou requêtes Web.
 		\item Plus besoin de maintenir un dictionnaire !
 	\end{itemize}
 	\end{block}	    
-    
-    
 \end{frame}
 
 \subsection{Le projet}
 
-\begin{frame}
-\frametitle{Introduction}
-\framesubtitle{Le projet}
 
-	\begin{block}{Le but}
-		Implémenter des techniques de translitération 
+\begin{frame}
+\frametitle{Introduction: le projet}
+%\framesubtitle{Le projet}
+
+	\begin{block}{L'objectif}
+		Implémenter des techniques de translittération automatique
 		\begin{itemize}
-		\item De l'espagnol vers le portugais
-		\item De l'anglais vers le russe
+            \item De l'espagnol vers le portugais (\emph{SPA-POR})
+            \item De l'anglais vers le russe (\emph{ENG-RUS})
 		\end{itemize}
 	\end{block}
 
 	\begin{block}{Les données}
-	Pour chaque pair de languages :		
+	Pour chaque paire de langages:		
 		\begin{itemize}
-		\item Un corpus d'apprentissage
-		\item Un corpus de test
+            \item Un corpus d'apprentissage: 3057 entrées pour SPA-POR, et 7262 entrées pour ENG-RUS.
+		\item Un corpus de test: 1000 entrées.
 		\end{itemize}		
 	\end{block}
 
 \end{frame}
-
 
 \subsection{Méthodologie}
 
 \begin{frame}
 \frametitle{Méthodologie}
 
-	\begin{block}{Échantillonage ?}
+	\begin{block}{Échantillonage?}
 	Les données fournies sont déjà séparées entre données d'apprentissage et données de test\\
-	$\Longrightarrow$ L'échantillonage n'est pas nécéssaire
+	$\Longrightarrow$ L'échantillonage n'est pas nécessaire
 	\end{block}
 
 	\begin{block}{Métriques}
-	Deux métriques  :
+	Deux métriques:
 		\begin{itemize}
-		\item Précision (distance binaire ????)
-		\item Distance de levenstein : $d(x,y) = \min_{y' \in traductions(x)} \{\delta(y,y')\}$
-
-où $\delta(y,y')=levenshtein(y,y')$
+            \item Précision
+            \item Distance de Levenshtein
 		\end{itemize}		
 	\end{block}
 	
@@ -113,7 +110,6 @@ où $\delta(y,y')=levenshtein(y,y')$
 
 
 \subsection{Translittération par règles de substitution}
-
 
 \begin{frame}[fragile]
 	\frametitle{Espagnol - Portugais}
@@ -141,7 +137,7 @@ où $\delta(y,y')=levenshtein(y,y')$
 	\begin{block}{Objectif}
 	Trouver un compromis entre :
 		\begin{itemize}
-		\item Fiabilité : la règle ne conduit pas à de fausses translitérations
+		\item Fiabilité : la règle ne conduit pas à de fausses translittérations
 		\item Généralisation : la règle peut s'appliquer à beaucoup de mots
 		\end{itemize}			
 	\end{block}
@@ -157,30 +153,23 @@ où $\delta(y,y')=levenshtein(y,y')$
 
 	\begin{block}{Partie gauche :}
 	 	\begin{itemize}
-	 	\item Aligner les mots : 
-	 	{\scriptsize \begin{verbatim} ('#catars', '#catars'), ('is', 'e'), ('#', '#')]}
-	 	 	 \end{verbatim}	}
-	 	
-	 	\item Enumérer la liste des candidats de gauche :\\
-	 		{\scriptsize \texttt{['is', 'sis', 'is\# ', 'sis\# ', ...]}	}  \\
-	 		et ne garder que ceux de longueur $> l$
-	 		 \vspace{0.6cm}
-	 		
-	 	\item Ne garder que les candidats ayant un support suffisant dans le corpus :
-	 	{\scriptsize \begin{verbatim}  len([w for w in words if 'is' in w]) > s
-		\end{verbatim}	}
-		
+	 	\item Aligner les mots:
+            {\scriptsize \begin{verbatim} [('#catars', '#catars'), ('is', 'e'), ('#', '#')] \end{verbatim}}
+	 	\item Enumérer la liste des candidats de gauche, de longueur $\geq l$:
+            {\scriptsize \begin{verbatim} ['is', 'sis', 'is#', 'sis#', ...] \end{verbatim}}
+	 	\item Garder les candidats ayant un support suffisant :
+            {\scriptsize \begin{verbatim} len([w for w in words if 'is' in w]) >= s \end{verbatim}}
 		\end{itemize}
 	\end{block}
 	
 	\begin{block}{Partie droite :}
-	Ne garder que la partie droite qui offre le meilleur taux de confiance
+        Prendre la partie droite de règle offrant le meilleur \emph{taux de confiance} ($\geq c$).
 	\end{block}		
 \end{frame}
 
 \begin{frame}
 \frametitle{Résultats}
-
+\footnotesize
 \begin{center}
 \begin{tabular}{|c|c|c||c|c|c|}
 \hline
@@ -206,12 +195,24 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \hline
 \end{tabular}
 \end{center}
+\normalsize
 \end{frame}
 
-\subsection{Translittération statistique}
-
+\subsection{Traduction statistique}
 \begin{frame}
-	\frametitle{Translittération statistique}
+\tableofcontents[currentsection]
+\end{frame}
+\begin{frame}
+    \frametitle{Traduction statistique}
+    \begin{figure}[H]
+        \label{translation_alignment}
+        %\caption{Traduction et translittération}
+        \centering
+        \vspace{0.3cm}
+        \includegraphics{word_alignment.pdf}
+        \hspace{0.5cm}
+        \includegraphics{letter_alignment.pdf}
+    \end{figure}
 \end{frame}
 
 \subsection{CRF}
@@ -230,7 +231,7 @@ p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...
 \frametitle{CRF}
 	\begin{block}{Méthode}
 		\begin{itemize}
-		\item Alignement gr\^ace à dpalign
+		\item Alignement grâce à dpalign
 		\item Utilisation de CRF++ :
 		{\scriptsize \begin{verbatim}
 		# Unigram
@@ -288,26 +289,21 @@ Précision&Distance d'édition\\
 
 \end{frame}
 
-
 \section{Conclusion}
-
-
 \begin{frame}
-    \frametitle{Overview}
+\tableofcontents[currentsection]
 \end{frame}
-
-\begin{frame}
-    \frametitle{Conclusion}
-    \url{https://code.google.com/p/transliteration}
-\end{frame}
-
-
 \begin{frame}
     \frametitle{Bibliography}
     {\fontsize{0.8em}{1em}
     \nocite{*}
     \bibliographystyle{plain}
-    \bibliography{report}}
+    \bibliography{presentation}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    \url{https://code.google.com/p/transliteration}
 \end{frame}
 
 \end{document}
