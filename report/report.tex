@@ -357,13 +357,13 @@ B
 \end{verbatim}
 
 \subsection{Évaluation}
-Nous testons ensuite le modèle CRF obtenu grâce aux données d'évaluation, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long.
+Nous testons ensuite le modèle CRF obtenu grâce aux données d'évaluation, en suivant le protocole décrit à la section \ref{eval}. Il est important de noter qu'aucun alignement n'a été réalisé sur ces données, ce qui a pu poser quelques problèmes.
 
 \subsection{Résultats}
-Un récapitualatif de nos résultats est disponible ci-dessous. Pour le jeu de données \emph{Espagnol-Portugais}, nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre baseline ainsi qu'avec les trois règles de substitutions trouvées manuellement. Pour le jeu de données \emph{Anglais-Russe}, le taux de précision chute rapidement. Cependant, on remarque que la distance moyenne est inférieure que pour la translitteration statistique. Cela signifie que les CRF se trompent plus souvent, mais les mots traduits sont plus proches de la vérité-terrain.
+Un récapitualatif de nos résultats est disponible ci-dessous. Pour le jeu de données \emph{Espagnol-Portugais}, nous trouvons des résultats un peu moins bons que grace aux règles de substitutions, cependant ils sont meilleurs que notre baseline ainsi qu'avec les trois règles de substitutions trouvées manuellement. Pour le jeu de données \emph{Anglais-Russe}, le taux de précision chute rapidement. En effet, il est possible d'étiquetter une et une seule étiquette par observation, il est donc impossible de traduire un mot par un mot plus long. Cependant, on remarque que la distance moyenne est inférieure que pour la translitteration statistique. Cela signifie que les CRF se trompent plus souvent, mais les mots traduits sont plus proches de la vérité-terrain.
 
 \begin{table}[H]
-\caption{Résultats pour le jeu de données\emph{Espagnol-Portugais} }
+\caption{Résultats pour le jeu de données \emph{Espagnol-Portugais} }
 \begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
@@ -380,8 +380,8 @@ CRF&\textbf{63.9\%}&\textbf{0.69}\\
 \end{table}
 
 
-\begin{table}
-\caption{Résultats pour le jeu de données\emph{Anglais-Russe} }
+\begin{table}[H]
+\caption{Résultats pour le jeu de données \emph{Anglais-Russe} }
 \begin{center}
 \begin{tabular}{|c|c|}
 \hline

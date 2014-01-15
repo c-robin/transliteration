@@ -3,6 +3,7 @@
 \usepackage[american]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{amsmath}
 \usetheme{Copenhagen}
 \setbeamertemplate{navigation symbols}{}
 %\title[Translittération automatique]{Données Séquentielles et Symboliques: Translittération automatique}
@@ -200,8 +201,65 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 
 \section{CRF}
 
+\begin{frame}
+\frametitle{Présentation}
+Équation principale des CRF:
+\begin{equation}
+p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
+\label{eqcrf}
+\end{equation}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Fonctions features}
+\begin{verbatim}
+# Unigram
+U0:%x[0,0]
+U1:%x[-1,0]
+U2:%x[1,0]
+U3:%x[-2,0]
+U4:%x[2,0]
+U5:%x[-3,0]	
+U6:%x[3,0]
+
+# Bigram
+B
+\end{verbatim}
+\end{frame}
+
+\begin{frame}
+\frametitle{Résultats}
+\begin{table}[H]
+\caption{Résultats pour le jeu de données \emph{Espagnol-Portugais} }
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+Règles&Précision&Distance d'édition\\
+\hline
+Baseline&51.0\%&1.06\\
+\hline
+3 subst.&58.6\%&0.76\\
+\hline
+CRF&\textbf{63.9\%}&\textbf{0.69}\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
 
 
+\begin{table}[H]
+\caption{Résultats pour le jeu de données \emph{Anglais-Russe} }
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Précision&Distance d'édition\\
+\hline
+49.8\%&1.61\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+\end{frame}
 
 \begin{frame}
     \frametitle{Bibliography}
