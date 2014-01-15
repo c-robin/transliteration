@@ -55,7 +55,7 @@
 
 
 \begin{frame}
-\frametitle{Introduction: le projet}
+\frametitle{Le projet}
 %\framesubtitle{Le projet}
 
 	\begin{block}{L'objectif}
@@ -77,7 +77,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Introduction: le projet : exemples}
+\frametitle{Le projet : exemples}
 \begin{block}{ENG-RUS}
 \foreignlanguage{russian}{
 \texttt{\#vitellin\# \#вителлин\# OR \#вителлины\#	other unknown}\\
@@ -120,6 +120,8 @@
 \begin{frame}
 \tableofcontents[currentsection, hideothersubsections]
 \end{frame}
+
+
 
 
 
@@ -212,10 +214,17 @@ Support $s$&Longueur $l$&Confiance $c$&Précision&Distance&Règles\\
 \normalsize
 \end{frame}
 
+
+
+
 \subsection{Traduction statistique}
+
+
 \begin{frame}
-\tableofcontents[currentsection]
+\tableofcontents[sectionstyle=show/shaded, subsectionstyle=show/shaded/hide] 
 \end{frame}
+
+
 \begin{frame}
     \frametitle{Traduction statistique}
     \begin{figure}[H]
@@ -288,16 +297,31 @@ SPA-POR&\textbf{71.5\%}&\textbf{0.73}&3.46\\
 \end{table}
 \end{frame}
 
+
+
 \subsection{CRF}
+
+
+\begin{frame}
+\tableofcontents[sectionstyle=show/shaded, subsectionstyle=show/shaded/hide] 
+\end{frame}
 
 \begin{frame}
 \frametitle{Présentation}
-\begin{block}{Équation principale des CRF}
-\begin{equation}
-p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
-\label{eqcrf}
-\end{equation}
-\end{block}
+    \begin{block}{Équation principale des CRF}
+        \begin{equation}
+            p(\textbf{s}|\textbf{o}) = \frac{1}{Z_0}exp(\sum_{t=1}^T\sum_k \lambda_k f_k(...))
+            \label{eqcrf}
+        \end{equation}
+    \end{block}
+    \begin{figure}[H]
+        \label{imagecrf}
+        %\caption{Traduction et translittération}
+        \centering
+        \vspace{0.3cm}
+        \includegraphics[width=\textwidth]{crf.png}
+    \end{figure}
+
 \end{frame}
 
 \begin{frame}[fragile]
@@ -360,16 +384,23 @@ Précision&Distance d'édition\\
 \end{frame}
 
 \begin{frame}
-    \frametitle{Conclusion}
-    \url{https://code.google.com/p/transliteration}
-\end{frame}
-
-\begin{frame}
     \frametitle{Bibliography}
     {\fontsize{0.8em}{1em}
     \nocite{*}
     \bibliographystyle{plain}
     \bibliography{presentation}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    \begin{block}{Améliorations et perspectives}
+    \begin{itemize}
+        \item Possibilité d'optimiser le réglage des paramètres
+        \item Bruit dans les données
+        \item Approches futures: Étudier la translittération inverse
+    \end{itemize}
+\end{block}
+    \url{https://code.google.com/p/transliteration}
 \end{frame}
 
 \end{document}
